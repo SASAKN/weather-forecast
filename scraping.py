@@ -33,7 +33,7 @@ if __name__ == "__main__":
         r.encoding = r.apparent_encoding
 
         # サイトごとスクレイピング
-        soup = BeautifulSoup(r.text, "features=html.parser")
+        soup = BeautifulSoup(r.text)
         # findAllで条件に一致するものをすべて抜き出す。
         # 今回の条件はtrタグでclassがmtxになっているもの。
         rows = soup.findAll('tr',class_='mtx')
