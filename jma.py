@@ -1,12 +1,11 @@
 import requests
-from bs4 import BeautifulSoup #ダウンロードしてなかったらpipでできるからやってね。
+from bs4 import BeautifulSoup 
 import csv
 
 place_codeA = [44] #都道府県コード
 place_codeB = [47662] #地域コード
 place_name = ["東京"]
 
-# URLで年と月ごとの設定ができるので%sで指定した英数字を埋め込めるようにします。
 base_url = "http://www.data.jma.go.jp/obd/stats/etrn/view/daily_s1.php?prec_no=%s&block_no=%s&year=%s&month=%s&day=1&view=p1"
 
 #取ったデータをfloat型に変えるやつ。(データが取れなかったとき気象庁は"/"を埋め込んでいるから0に変える)
@@ -25,7 +24,7 @@ if __name__ == "__main__":
     index = place_name.index(place)
 
     # for文で該当期間抽出
-    for year in range(1924,2024):
+    for year in range(2023,2024):
       print(year)
       # その年の1月～12月の12回を網羅する。
       for month in range(1,13):
@@ -34,7 +33,7 @@ if __name__ == "__main__":
         r.encoding = r.apparent_encoding
 
         # サイトごとスクレイピング
-        soup = BeautifulSoup(r.text)
+        soup = BeautifulSoup(r.text, "features=html.parser")
         # findAllで条件に一致するものをすべて抜き出す。
         # 今回の条件はtrタグでclassがmtxになっているもの。
         rows = soup.findAll('tr',class_='mtx')
