@@ -1,2 +1,2 @@
 # ライブラリーのインポート
-import numpy as nu
+import numpy as num
