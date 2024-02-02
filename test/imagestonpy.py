@@ -14,7 +14,7 @@ def png_images_to_npy(directory, filename):
     print(f"{filename}にPNG画像データを保存しました。")
 
 if __name__ == "__main__":
-    directory = "path/to/png_images"  # PNG画像が保存されているディレクトリのパス
+    directory = "images/"  # PNG画像が保存されているディレクトリのパス
     filename = "weather_images.npy"
     png_images_to_npy(directory, filename)
 
