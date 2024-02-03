@@ -8,7 +8,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 def create_dataset(past_weather_images, current_weather_images):
     # ここでは、過去の天気図と現在の天気図を組み合わせてデータセットを作成する簡単な例を示します。
     # 実際には、画像の前処理やデータの拡張などを行う必要があります。
-    combined_images = np.concatenate((past_weather_images, current_weather_images), axis=3)
+    combined_images = np.concatenate((past_weather_images, current_weather_images), axis=1)
     return combined_images
 
 # モデルの定義
@@ -52,8 +52,8 @@ def predict_weather(model, weather_image):
 
 if __name__ == "__main__" :
     # 過去の天気画像と現在の天気画像を読み込む
-    past_weather_images = np.load('past_weather_images.npy')
-    current_weather_images = np.load('current_weather_images.npy')
+    past_weather_images = np.load('weather_images2.npy')
+    current_weather_images = np.load('weather_images2.npy')
     
     # データセットの作成
     dataset = create_dataset(past_weather_images, current_weather_images)
