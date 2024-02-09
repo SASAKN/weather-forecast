@@ -61,22 +61,21 @@ def download_data_2():
                             contents = tmp_data
                             print(tag2text(contents, 0))
 
-                        #コンテンツを表配列にまとめる
-                        for content in contents:
-                            row_data = []
-                            row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour)) #年月日時を追加
-                            row_data.append(str2float(tag2text(contents)))
-                            row_data.append(str2float(tag2))
+                #コンテンツを表配列にまとめる
+                for content in contents:
+                    row_data = []
+                    row_data.append(str(year) + "/" +  str(month) + "/" + str(date) + "/" + str(hour)) #年月日時を追加
+                    row_data.append(str2float(tag2text(content, 0))) #気圧
+                    row_data.append(str2float(tag2text(content, 4))) #気温
+                    row_data.append(str2float(tag2text(content, 8))) #風速
+                    row_data.append(str2float(tag2text(content, 10))) #風向
 
-                            
+                    #表の内容を入れる
+                    All_list.append(row_data)
 
-
-                        
-
-                        
-
-                        
-
+        with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
+            writer = csv.writer(file, lineterminator='\n')
+            writer.writerows(All_list)
 
 if __name__ == "__main__":
     download_data_2()
