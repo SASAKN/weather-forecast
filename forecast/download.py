@@ -59,14 +59,14 @@ def download_data_2():
                         if not tag2text(tmp_data) == '///':
                             #中身を抜き出す
                             contents = tmp_data
-                            print(contents)
-                            print(tag2text(contents, 10))
-                            
-                        
+                            print(tag2text(contents, 0))
+
+                        #コンテンツを表配列にまとめる
                         for content in contents:
                             row_data = []
                             row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour)) #年月日時を追加
                             row_data.append(str2float(tag2text(contents)))
+                            row_data.append(str2float(tag2))
 
                             
 
