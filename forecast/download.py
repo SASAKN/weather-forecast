@@ -55,9 +55,9 @@ def download_data_2():
                         #まとめる
                         All_list.append(row_data)
 
-    with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
-        writer = csv.writer(file, lineterminator='\n')
-        writer.writerows(All_list)
+        with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
+            writer = csv.writer(file, lineterminator='\n')
+            writer.writerows(All_list)
 
 if __name__ == "__main__":
     download_data_2()
