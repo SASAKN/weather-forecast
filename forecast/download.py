@@ -25,8 +25,8 @@ def download_data_2():
         index = place_name_2.index(place)
 
         for year in range(2023, 2024):
-            for month in range(1, 2):
-                for date in range(1, 15):
+            for month in range(1, 13):
+                for date in range(1, 32):
                     for hour in hours_list_2:
                         #処理中の年月日を表示
                         print(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour))
