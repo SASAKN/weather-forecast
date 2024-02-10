@@ -18,14 +18,6 @@ def str2float(str):
     except:
         return 0.0
 
-#tag2text
-#高層データダウンロード時 index=0 気圧 index=1 気温 index=2 高度 index=3 相対湿度 index=4 風速(m/s) index=5 風向(°)
-def tag2text(data, index=0):
-    try:
-        return data[index].string
-    except:
-        return "///"
-
 # 気圧などを取得する関数
 def download_data_2():
     for place in place_name_2:
@@ -33,13 +25,11 @@ def download_data_2():
         index = place_name_2.index(place)
 
         for year in range(2023, 2024):
-            print(year)
-
-            for month in range(1, 13):
-                for date in range(1, 32):
+            for month in range(1, 2):
+                for date in range(1, 15):
                     for hour in hours_list_2:
-
-                        print(year,'/', month, '/', date, '/',hour)
+                        #処理中の年月日を表示
+                        print(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour))
 
                         #URL作成
                         req = requests.get(base_url%(year, month, date, hour, place_code_2[index]))
@@ -49,30 +39,25 @@ def download_data_2():
                         page = bs(req.text, 'html.parser')
 
                         #表の2番目のものをデータとして使う
-                        rows = page.select('#tablefix1 .mtx')[1]
+                        rows = page.select('#tablefix1 .mtx')[1] #TRを取得
 
-                        for row in rows:
-                            #データを検索
-                            data = row.find_all('td')
-                            #初期化
-                            row_data = []
-                            #///でないかを確認する
-                            for i in range(1, 7):
-                                if not tag2text(data, i) == '///':
-                                    #///出なければそれを配列に入れる
-                                    row_data.append(str(year) + "/" + str(month) + "/" + str(date) + str(hour)) #年月日時
-                                    row_data.append(tag2text(data, 0)) #気圧
-                                    row_data.append(tag2text(data, 1)) #気温
-                                    row_data.append(tag2text(data, 3)) #相対湿度
-                                    row_data.append(tag2text(data, 4)) #風速
-                                    row_data.append(tag2text(data, 5)) #風向
+                        #必要なデータを集め配列にまとめる
+                        row_data = [] #初期化
+                        data = rows.select('td')
+                        if not data[0].string == "///":
+                            row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour)) #年月日時
+                            row_data.append(str2float(data[0].string)) #気圧
+                            row_data.append(str2float(data[2].string)) #気温
+                            row_data.append(str2float(data[3].string)) #相対湿度
+                            row_data.append(str2float(data[4].string)) #風速
+                            row_data.append(str2float(data[5].string)) #風向
 
-                                    #データを追加
-                                    All_list.append(row_data)
+                        #まとめる
+                        All_list.append(row_data)
 
-        with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
-            writer = csv.writer(file, lineterminator='\n')
-            writer.writerows(All_list)
+    with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
+        writer = csv.writer(file, lineterminator='\n')
+        writer.writerows(All_list)
 
 if __name__ == "__main__":
     download_data_2()
