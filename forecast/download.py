@@ -6,7 +6,7 @@ import csv
 place_code = [''] #湿度などのコード
 place_code_2 = ['47646'] #気圧などのコード
 place_name_2 = ["輪島"] #気圧などの名前
-hours_list_2 = [9, 21, 3, 15] #気圧をとる時間
+hours_list_2 = [9, 21] #気圧をとる時間
 
 # ベースとなるURL
 #year = 年, month = 月, day = 日, hour = 時 (9, 21, 3, 15), point = 地域コード
@@ -18,14 +18,13 @@ def str2float(str):
     except:
         return 0.0
 
-#tag2textの使い方
-#index 0 気圧(hPa) index 2 高度(m) index 4 気温 index 6 相対湿度 index 8 風速(m/s) index 10 風向
-
+#tag2text
+#高層データダウンロード時 index=0 気圧 index=1 気温 index=2 高度 index=3 相対湿度 index=4 風速(m/s) index=5 風向(°)
 def tag2text(data, index=0):
     try:
-        return str(data).split('>')[index + 1].split('<')[0]
+        return data[index].string
     except:
-        return str('///')
+        return "///"
 
 # 気圧などを取得する関数
 def download_data_2():
@@ -50,28 +49,26 @@ def download_data_2():
                         page = bs(req.text, 'html.parser')
 
                         #表の2番目のものをデータとして使う
-                        tmp_rows = page.select('#tablefix1 .mtx')[1]
+                        rows = page.select('#tablefix1 .mtx')[1]
 
-                        #tdを検索(表の中身)
-                        tmp_data = tmp_rows.select('td')
+                        for row in rows:
+                            #データを検索
+                            data = row.find_all('td')
+                            #初期化
+                            row_data = []
+                            #///でないかを確認する
+                            for i in range(1, 7):
+                                if not tag2text(data, i) == '///':
+                                    #///出なければそれを配列に入れる
+                                    row_data.append(str(year) + "/" + str(month) + "/" + str(date) + str(hour)) #年月日時
+                                    row_data.append(tag2text(data, 0)) #気圧
+                                    row_data.append(tag2text(data, 1)) #気温
+                                    row_data.append(tag2text(data, 3)) #相対湿度
+                                    row_data.append(tag2text(data, 4)) #風速
+                                    row_data.append(tag2text(data, 5)) #風向
 
-                        #中身が///は、なし
-                        if not tag2text(tmp_data) == '///':
-                            #中身を抜き出す
-                            contents = tmp_data
-                            print(tag2text(contents, 0))
-
-                #コンテンツを表配列にまとめる
-                for content in contents:
-                    row_data = []
-                    row_data.append(str(year) + "/" +  str(month) + "/" + str(date) + "/" + str(hour)) #年月日時を追加
-                    row_data.append(str2float(tag2text(content, 0))) #気圧
-                    row_data.append(str2float(tag2text(content, 4))) #気温
-                    row_data.append(str2float(tag2text(content, 8))) #風速
-                    row_data.append(str2float(tag2text(content, 10))) #風向
-
-                    #表の内容を入れる
-                    All_list.append(row_data)
+                                    #データを追加
+                                    All_list.append(row_data)
 
         with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
             writer = csv.writer(file, lineterminator='\n')
