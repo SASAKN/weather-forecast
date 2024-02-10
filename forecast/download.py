@@ -4,8 +4,8 @@ import csv
 
 # 地域コードの配列
 place_code = [''] #湿度などのコード
-place_code_2 = ['47646'] #気圧などのコード
-place_name_2 = ["輪島"] #気圧などの名前
+place_code_2 = ['47646', '47600'] #気圧などのコード
+place_name_2 = ["館野", "輪島"] #気圧などの名前
 hours_list_2 = [9, 21] #気圧をとる時間
 
 # ベースとなるURL
@@ -22,8 +22,7 @@ def str2float(str):
 def download_data_2():
     for place in place_name_2:
         All_list = [['年月日', '気圧', '気温', '風速(m/s)', '風向(°)']] #集計データ
-        index = place_name_2.index(place)
-
+        index = place.index(place)
         for year in range(2023, 2024):
             for month in range(1, 13):
                 for date in range(1, 32):
