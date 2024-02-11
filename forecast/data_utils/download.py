@@ -41,7 +41,7 @@ def direction2degrees(direction):
 # 気象台データをダウンロード
 def download_data_1():
     for place in place_name_1:
-        All_list_1 = ['年月日', '気圧_現地', '気圧_海面', '降水量', '気温', '湿度', '風速', '風向', '降雪', '天気', '雲量'] #集計データ
+        All_list_1 = [['年月日', '気圧_現地', '気圧_海面', '降水量', '気温', '湿度', '風速', '風向', '降雪', '天気', '雲量']] #集計データ
         index = place.index(place)
         for year in range(2023, 2024):
             for month in range(1, 13):
@@ -58,7 +58,7 @@ def download_data_1():
 
                     #3番目からのデータを使う
                     tmp_rows = page.select('#tablefix1 .mtx')
-                    rows = tmp_rows[2:16]
+                    rows = tmp_rows[2:26]
 
                     for row in rows:
                         #表の中身を抜き出す
@@ -66,7 +66,7 @@ def download_data_1():
 
                         # 必要なデータを集め、配列にまとめる 
                         row_data = [] #初期化
-                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/") #年月日時
+                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[0].string)) #年月日時
                         row_data.append(str2float(data[1].string)) #気圧_現地
                         row_data.append(str2float(data[2].string)) #気圧_海面
 
@@ -94,7 +94,8 @@ def download_data_1():
                             row_data.append(str(weather.get('alt')))
 
                         #雲量
-                        row_data.append(str(data[15].string))
+                        if not data[15].string == None:
+                            row_data.append(str(data[15].string))
                         
                         #まとめる
                         All_list_1.append(row_data)
