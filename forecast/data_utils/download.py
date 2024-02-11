@@ -90,23 +90,16 @@ def download_data_1():
                         #天気
                         weather = '' #初期化
                         weather = data[14].select_one('img')
-                        row_data.append(weather.get('alt'))
+                        row_data.append(str(weather.get('alt')))
 
                         #雲量
-                        row_data.append(data[15].string)
+                        row_data.append(str(data[15].string))
                         
-
-                        
-
-                        
-
-
-
-                        
-
-
-
-
+                        #まとめる
+                        All_list_1.append(row_data)
+        with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
+            writer = csv.writer(file, lineterminator='\n')
+            writer.writerows(All_list_1)
 
 
 # ラジオゾンデ観測のデータをダウンロード
