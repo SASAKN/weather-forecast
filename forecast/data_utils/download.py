@@ -4,9 +4,9 @@ import csv
 
 #アメダスや気象台の地上観測データの地域コードなど
 
-place_code_1_prec = [''] #都道府県コード
-place_code_1_block = [''] #地域コード
-place_name_1 = [''] #場所の名前
+place_code_1_prec = ['44'] #都道府県コード
+place_code_1_block = ['47662'] #地域コード
+place_name_1 = ['東京'] #場所の名前
 
 # ラジオゾンデ観測の地域コードなど
 
@@ -57,8 +57,8 @@ def download_data_1():
                     page = bs(req.text, 'html.parser')
 
                     #3番目からのデータを使う
-                    rows = page.select('#tablefix1 .mtx')
-                    rows[2:]
+                    tmp_rows = page.select('#tablefix1 .mtx')
+                    rows = tmp_rows[2:16]
 
                     for row in rows:
                         #表の中身を抜き出す
@@ -66,7 +66,7 @@ def download_data_1():
 
                         # 必要なデータを集め、配列にまとめる 
                         row_data = [] #初期化
-                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[0].string)) #年月日時
+                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/") #年月日時
                         row_data.append(str2float(data[1].string)) #気圧_現地
                         row_data.append(str2float(data[2].string)) #気圧_海面
 
@@ -89,8 +89,9 @@ def download_data_1():
 
                         #天気
                         weather = '' #初期化
-                        weather = data[14].select_one('img')
-                        row_data.append(str(weather.get('alt')))
+                        if not data[14].find('img') == None:
+                            weather = data[14].find('img')
+                            row_data.append(str(weather.get('alt')))
 
                         #雲量
                         row_data.append(str(data[15].string))
@@ -143,7 +144,7 @@ def download_data_2():
             writer.writerows(All_list_2)
 
 if __name__ == "__main__":
-    download_data_2()
+    download_data_1()
 
 
 
