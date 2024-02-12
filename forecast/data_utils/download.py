@@ -6,7 +6,7 @@ import csv
 
 place_code_1_prec = ['44'] #都道府県コード
 place_code_1_block = ['47662'] #地域コード
-place_name_1 = ['東京'] #場所の名前
+place_name_1 = ["東京"] #場所の名前
 
 # ラジオゾンデ観測の地域コードなど
 
@@ -43,7 +43,7 @@ def download_data_1():
     for place in place_name_1:
         All_list_1 = [['年月日時', '気圧_現地', '気圧_海面', '降水量', '気温', '湿度', '風速', '風向', '降雪', '天気', '雲量']] #集計データ
         index = place.index(place)
-        for year in range(2023, 2024):
+        for year in range(1984, 2024):
             for month in range(1, 13):
                 for date in range(1, 32):
                     #処理中の年月日を表示
