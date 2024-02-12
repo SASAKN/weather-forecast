@@ -50,7 +50,16 @@ def weather2float(weather):
     elif weather == "みぞれ":
         return 9
     else:
-        return 10 #Unknown
+        return 10 # Unknown
+
+#雲量を数値変換
+def cloud2float(cloud):
+    if str(cloud).index("+"):
+        return cloud + 0.5
+    elif str(cloud).index("-"):
+        return cloud - 0.5
+    else:
+        return cloud
 
 #16方位をDegreesに変換
 def direction2degrees(direction):
