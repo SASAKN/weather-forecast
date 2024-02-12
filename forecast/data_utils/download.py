@@ -146,8 +146,4 @@ def download_data_2():
 
 if __name__ == "__main__":
     download_data_1()
-
-
-
-
-
+    download_data_2()
