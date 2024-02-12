@@ -5,8 +5,8 @@ import csv
 #アメダスや気象台の地上観測データの地域コードなど
 
 place_code_1_prec = ['44'] #都道府県コード
-place_code_1_block = ['47991'] #地域コード
-place_name_1 = ["南鳥島(東京都)"] #場所の名前
+place_code_1_block = ['47662'] #地域コード
+place_name_1 = ["東京"] #場所の名前
 
 # ラジオゾンデ観測の地域コードなど
 
@@ -26,6 +26,29 @@ def str2float(str):
         return float(str)
     except:
         return 0.0
+
+#天気を数値に変換
+def weather2float(weather):
+    if  weather == "快晴":
+        return 0
+    elif weather == "晴":
+        return 1
+    elif weather == "曇":
+        return 2
+    elif weather == "薄曇":
+        return 3
+    elif weather == "霧":
+        return 4
+    elif weather == "霧雨":
+        return 5
+    elif weather == "雨":
+        return 6
+    elif weather == "ひょう":
+        return 7
+    elif weather == "雪":
+        return 8
+    elif weather == "みぞれ":
+        return 9
 
 #16方位をDegreesに変換
 def direction2degrees(direction):
