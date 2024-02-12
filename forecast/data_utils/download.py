@@ -54,12 +54,12 @@ def weather2float(weather):
 
 #雲量を数値変換
 def cloud2float(cloud):
-    if str(cloud).index("+"):
-        return cloud + 0.5
-    elif str(cloud).index("-"):
-        return cloud - 0.5
+    if str(cloud).index("+") == 1:
+        return str2float(cloud) + 0.5
+    elif str(cloud).index("-") == 1:
+        return str2float(cloud) - 0.5
     else:
-        return cloud
+        return str2float(cloud)
 
 #16方位をDegreesに変換
 def direction2degrees(direction):
