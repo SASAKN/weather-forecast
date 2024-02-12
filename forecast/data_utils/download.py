@@ -5,7 +5,7 @@ import csv
 #アメダスや気象台の地上観測データの地域コードなど
 
 place_code_1_prec = ['44'] #都道府県コード
-place_code_1_block = ['47662'] #地域コード
+place_code_1_block = ['47991'] #地域コード
 place_name_1 = ["東京"] #場所の名前
 
 # ラジオゾンデ観測の地域コードなど
@@ -43,8 +43,8 @@ def download_data_1():
     for place in place_name_1:
         All_list_1 = [['年月日時', '気圧_現地', '気圧_海面', '降水量', '気温', '湿度', '風速', '風向', '降雪', '天気', '雲量']] #集計データ
         index = place.index(place)
-        for year in range(1984, 2024):
-            for month in range(1, 13):
+        for year in range(1984, 1985):
+            for month in range(1, 2):
                 for date in range(1, 32):
                     #処理中の年月日を表示
                     print(str(year) + "/" + str(month) + "/" + str(date))
@@ -60,42 +60,36 @@ def download_data_1():
                     tmp_rows = page.select('#tablefix1 .mtx')
                     rows = tmp_rows[2:26]
 
-                    for row in rows:
+                    for row in rows: 
                         #表の中身を抜き出す
                         data = row.select('td')
 
                         # 必要なデータを集め、配列にまとめる 
                         row_data = [] #初期化
-                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[0].string)) #年月日時
-                        row_data.append(str2float(data[1].string)) #気圧_現地
-                        row_data.append(str2float(data[2].string)) #気圧_海面
-
-                        #降水量
-                        if data[3].string == '--': #降水量がなければ
-                            row_data.append(str2float("0")) #0mm
-                        else : #降水があれば
-                            row_data.append(str2float(data[3].string)) #降水量
-                        
-                        row_data.append(str2float(data[4].string)) #気温
-                        row_data.append(str2float(data[7].string)) #湿度
-                        row_data.append(str2float(data[8].string)) #風速
-                        row_data.append(direction2degrees(data[9].string)) #風向
-                        
-                        #降雪量
-                        if data[12].string == '--':
-                            row_data.append(str2float("0")) #0mm
-                        else : #降雪があれば
-                            row_data.append(str2float(data[12].string)) #降雪量
-
-                        #天気
-                        weather = '' #初期化
-                        if not data[14].find('img') == None:
-                            weather = data[14].find('img')
-                            row_data.append(str(weather.get('alt')))
-
-                        #雲量
-                        if not data[15].string == None:
-                            row_data.append(str(data[15].string))
+                        for index_2 in [0, 1, 2, 3, 4, 7, 8, 9, 12, 14, 15]:
+                            if data[index_2].string == None:
+                                if index_2 == 14: #天気
+                                    weather = data[index_2].find("img")
+                                    if not weather == None:
+                                        row_data.append(str(weather.get("alt")))
+                                else:
+                                    row_data.append("")
+                            elif data[index_2].string == '--':
+                                if index_2 == 3: #降水量
+                                    row_data.append(str2float("0"))
+                                elif index_2 == 12: #降雪量
+                                    row_data.append(str2float("0"))
+                                else:
+                                    row_data.append("")
+                            else:
+                                if index_2 == 0: #年月日時
+                                    row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[index_2].string)) #年月日時
+                                elif index_2 == 9: #風向
+                                    row_data.append(direction2degrees(data[index_2].string))
+                                elif index_2 == 15: #雲量
+                                    row_data.append(str(data[index_2].string))
+                                else:
+                                    row_data.append(str2float(data[index_2].string)) # 気圧_現地, 気圧_海面, 降水量, 気温, 湿度, 風速, 降雪量
                         
                         #まとめる
                         All_list_1.append(row_data)
@@ -146,4 +140,3 @@ def download_data_2():
 
 if __name__ == "__main__":
     download_data_1()
-    download_data_2()
