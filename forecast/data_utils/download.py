@@ -49,6 +49,8 @@ def weather2float(weather):
         return 8
     elif weather == "みぞれ":
         return 9
+    else:
+        return 10 #Unknown
 
 #16方位をDegreesに変換
 def direction2degrees(direction):
