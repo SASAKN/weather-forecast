@@ -195,8 +195,8 @@ def download_data_2():
 
 #過去の天気図のダウンロード
 def download_data_weather_map():
-    for year in range(2023, 2024):
-        for year_2 in range(23, 24):
+    for year in range(2002, 2003):
+        for year_2 in range(2, 3):
             for month in range(1, 13):
                 #処理中の年月を表示
                 print(str(year) + "/" + str(month) + "/")
