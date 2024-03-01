@@ -4,6 +4,7 @@ import csv
 from pdf2image import convert_from_path
 import cairosvg
 import os
+import glob
 import subprocess
 
 #アメダスや気象台の地上観測データの地域コードなど
@@ -224,14 +225,13 @@ def download_data_weather_map():
 def weather_map2svg():
     # 天気図のPDFファイルを調べる
     pdf_list = []
-    for root,dirs, files in os.walk('./map'):
-        for file in files:
-            file_path = os.path.join(root, file)
-            pdf_list.append(file_path)
+    for pdf in glob.glob('./map/*.pdf'):
+        pdf_list.append(pdf)
     
     #そのPDFをひとつづつSVGに変換する
     for pdf_path in pdf_list:
         subprocess.run(["pdf2svg", pdf_path, f'{pdf_path}.svg'])
+        os.remove(pdf_path)
                     
 
 if __name__ == "__main__":
