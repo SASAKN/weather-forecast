@@ -1,7 +1,10 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import csv
+from pdf2image import convert_from_path
+import cairosvg
 import os
+import subprocess
 
 #アメダスや気象台の地上観測データの地域コードなど
 
@@ -202,18 +205,35 @@ def download_data_weather_map():
                 req = requests.get(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
                 req.encoding = req.apparent_encoding
 
-                #ファイルの名前を作成
-                file_name = os.path.basename(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
+                if not req.status_code == 404:
+                    #ファイルの名前を作成
+                    file_name = os.path.basename(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
 
-                #保存ディレクトリ
-                save_dir = './data/'
+                    #保存ディレクトリ
+                    save_dir = './map/'
 
-                #パス生成
-                save_path = os.path.join(save_dir, file_name)
+                    #パス生成
+                    save_path = os.path.join(save_dir, file_name)
 
-                #PDFを保存
-                with open(save_path, 'wb') as file:
-                    file.write(req.content)
+                    #PDFを保存
+                    with open(save_path, 'wb') as file:
+                        file.write(req.content)
+
+
+# 天気図をSVGに変換する関数
+def weather_map2svg():
+    # 天気図のPDFファイルを調べる
+    pdf_list = []
+    for root,dirs, files in os.walk('./map'):
+        for file in files:
+            file_path = os.path.join(root, file)
+            pdf_list.append(file_path)
+    
+    #そのPDFをひとつづつSVGに変換する
+    for pdf_path in pdf_list:
+        subprocess.run(["pdf2svg", pdf_path, f'{pdf_path}.svg'])
+                    
 
 if __name__ == "__main__":
     download_data_weather_map()
+    weather_map2svg()

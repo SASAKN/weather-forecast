@@ -4,3 +4,5 @@ test.py
 *.csv
 .DS_Store
 *.pdf
+*.svg
+*.pdf.svg
