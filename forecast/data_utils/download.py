@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import csv
+import os
 
 #アメダスや気象台の地上観測データの地域コードなど
 
@@ -20,12 +21,28 @@ base_url_1 = "https://www.data.jma.go.jp/stats/etrn/view/hourly_s1.php?prec_no=%
 # ベースURL2 year = 年, month = 月, day = 日, hour = 時 (9, 21, 3, 15), point = 地域コード
 base_url_2 = "https://www.data.jma.go.jp/stats/etrn/upper/view/hourly_usp.php?year=%s&month=%s&day=%s&hour=%s&atm=&point=%s&view="
 
+# ベースURL3 0 = 西暦(4桁) 1 = 西暦下2桁 2 = 月
+base_url_3 = "https://www.data.jma.go.jp/fcd/yoho/data/hibiten/%s/%s%s.pdf"
+
+
+
 #文字列を少数に変換
 def str2float(str):
     try:
         return float(str)
     except:
         return 0.0
+
+def add_zero_to_single_digit(number):
+    # 数字が一桁の場合
+    if 0 <= number < 10:
+        # 0を先頭に足して2桁にする
+        result = f'0{number}'
+    else:
+        # すでに2桁以上の場合はそのまま
+        result = str(number)
+    
+    return result
 
 #天気を数値に変換
 def weather2float(weather):
@@ -172,5 +189,31 @@ def download_data_2():
             writer = csv.writer(file, lineterminator='\n')
             writer.writerows(All_list_2)
 
+#過去の天気図のダウンロード
+def download_data_weather_map():
+    for year in range(2023, 2024):
+        for year_2 in range(23, 24):
+            for month in range(1, 13):
+                #処理中の年月を表示
+                print(str(year) + "/" + str(month) + "/")
+
+
+                #URL作成
+                req = requests.get(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
+                req.encoding = req.apparent_encoding
+
+                #ファイルの名前を作成
+                file_name = os.path.basename(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
+
+                #保存ディレクトリ
+                save_dir = './data/'
+
+                #パス生成
+                save_path = os.path.join(save_dir, file_name)
+
+                #PDFを保存
+                with open(save_path, 'wb') as file:
+                    file.write(req.content)
+
 if __name__ == "__main__":
-    download_data_1()
+    download_data_weather_map()
