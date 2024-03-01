@@ -41,6 +41,8 @@ def combine_columns(input_file, output_file):
             new_row = [str(extract_first_two_digits_from_number(int(row[1]))), row[1], row[7], row[8], row[9], row[10]]
             writer.writerow(new_row)
 
+
+
 # 使用例
 input_file_path = 'ame_master.csv'
 output_file_path = 'output_filtered.csv'
