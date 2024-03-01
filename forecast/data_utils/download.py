@@ -48,30 +48,58 @@ def add_zero_to_single_digit(number):
     
     return result
 
-#天気を数値に変換
+#天気を数値に変換 - 参照 https://www.data.jma.go.jp/obd/stats/data/mdrr/man/tenki_kigou.html
 def weather2float(weather):
     if  weather == "快晴":
-        return 0
-    elif weather == "晴":
         return 1
-    elif weather == "曇":
+    elif weather == "晴":
         return 2
-    elif weather == "薄曇":
+    elif weather == "薄雲":
         return 3
-    elif weather == "霧":
+    elif weather == "曇":
         return 4
-    elif weather == "霧雨":
+    elif weather == "煙霧":
         return 5
-    elif weather == "雨":
+    elif weather == "砂じん嵐":
         return 6
-    elif weather == "ひょう":
+    elif weather == "高い地ふぶき":
         return 7
-    elif weather == "雪":
+    elif weather == "霧":
         return 8
-    elif weather == "みぞれ":
+    elif weather == "霧雨":
         return 9
-    else:
-        return 10 # Unknown
+    elif weather == "しゅう雨または止み間のある雨":
+        return 10
+    elif weather == "降水":
+        return 11
+    elif weather == "雨":
+        return 12
+    elif weather == "みぞれ":
+        return 13
+    elif weather == "雪":
+        return 14
+    elif weather == "着氷性の雨":
+        return 15
+    elif weather == "着氷性の霧雨":
+        return 16
+    elif weather == "凍雨":
+        return 17
+    elif weather == "霧雪":
+        return 18
+    elif weather == "しゅう雪または止み間のある雪":
+        return 19
+    elif weather == "あられ":
+        return 20
+    elif weather == "ひょう":
+        return 21
+    elif weather == "もや":
+        return 22
+    elif weather == "細氷":
+        return 23
+    elif weather == "雷":
+        return 24
+
+
 
 #雲量を数値変換
 def cloud2float(cloud):
