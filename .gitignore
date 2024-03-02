@@ -1,6 +1,5 @@
 images/
 test/
-test.py
 *.csv
 .DS_Store
 *.pdf

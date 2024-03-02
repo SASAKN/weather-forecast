@@ -1,6 +1,8 @@
 import csv
 
-#JMAからame_master.csvをこのリンクからダウンロードすること
+#JMAからame_master.csvをダウンロードしなさい - https://www.jma.go.jp/jma/kishou/know/amedas/ame_master.zip
+
+
 
 
 # 気象庁の観測地点コードは、5桁であるが、そのうち先頭2桁は、都道府県振興局番号である。
