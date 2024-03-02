@@ -37,6 +37,7 @@ def str2float(str):
     except:
         return 0.0
 
+# 数字を二桁に変換
 def add_zero_to_single_digit(number):
     # 数字が一桁の場合
     if 0 <= number < 10:
@@ -47,6 +48,23 @@ def add_zero_to_single_digit(number):
         result = str(number)
     
     return result
+
+# CSVから配列に変換
+def column_to_array(input_file, column_index):
+    result_array = []
+
+    with open(input_file, 'r', encoding='utf-8', newline='') as infile:
+        reader = csv.reader(infile)
+
+        #ヘッダー行のスキップ
+        next(reader)
+
+        # 指定した列を抽出して配列にまとめる
+        for row in reader:
+            if column_index < len(row):
+                result_array.append(row[column_index])
+
+    return result_array
 
 #天気を数値に変換 - 参照 https://www.data.jma.go.jp/obd/stats/data/mdrr/man/tenki_kigou.html
 def weather2float(weather):
@@ -98,8 +116,6 @@ def weather2float(weather):
         return 23
     elif weather == "雷":
         return 24
-
-
 
 #雲量を数値変換
 def cloud2float(cloud):

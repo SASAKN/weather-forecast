@@ -1,5 +1,8 @@
 import csv
 
+#JMAからame_master.csvをこのリンクからダウンロードすること
+
+
 # 気象庁の観測地点コードは、5桁であるが、そのうち先頭2桁は、都道府県振興局番号である。
 # そして、都道府県振興局番号は、スクレイピングに必要なものである。
 def extract_first_two_digits_from_number(num):
@@ -9,6 +12,7 @@ def extract_first_two_digits_from_number(num):
     else:
         return 0
 
+#気圧を観測している地点のみにカットする
 def filter_csv(input_file, output_file):
     with open(input_file, 'r', encoding='utf-8', newline='') as infile, \
          open(output_file, 'w', encoding='utf-8', newline='') as outfile:
