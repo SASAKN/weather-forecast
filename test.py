@@ -15,6 +15,8 @@ class block_codes:
         self.prec = prec
         self.block = block
         self.block_code = block_code
+    def get_csv_format(self):
+        return [self.prec, self.block_code, self.block]
 
 # クラスの配列
 class_array = []
@@ -150,14 +152,14 @@ def get_observation_points():
                 if tmp_area == []:
                     print(f'[ INFO ]Block None {block_name[index_2]}')
                 else:
+                    #タグから地域コードを抜き出し、配列にクラスごと入れる
                     print(tag2code(tmp_area[0]))
                     class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
 
+#CSV書き込み
+# def write_csv(output_file, data) {
 
-
-
-        
-
+# }
 
 
 # 使用例
@@ -186,4 +188,4 @@ if __name__ == "__main__":
     #地域コードをJMAからスクレイピング
     get_observation_points()
 
-    print(f'{class_array[0].prec},{class_array[0].block},{class_array[0].block_code}')
+    print(f'{class_array[0].get_csv_format()}')
