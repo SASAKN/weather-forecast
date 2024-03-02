@@ -5,6 +5,40 @@ import os
 import glob
 import pandas as pd
 
+#ベースURL prec_no = 都道府県コード
+base_url = "https://www.data.jma.go.jp/stats/etrn/select/prefecture.php?prec_no=%s"
+
+# CSVから配列に変換
+def column_to_array(input_file, column_index):
+    result_array = []
+
+    with open(input_file, 'r', encoding='utf-8', newline='') as infile:
+        reader = csv.reader(infile)
+
+        #ヘッダー行のスキップ
+        next(reader)
+
+        # 指定した列を抽出して配列にまとめる
+        for row in reader:
+            if column_index < len(row):
+                result_array.append(row[column_index])
+
+    return result_array
+
+# CSV重複行削除
+def delete_duplicates(input_file, subset, output_file):
+    # CSV読み込み
+    result_csv = pd.read_csv(input_file, encoding='utf-8')
+
+    #重複雨削除
+    sorted_csv = result_csv.drop_duplicates(subset=[str(subset)], keep='first', inplace=False)
+
+    #ソート
+    result_csv = sorted_csv.sort_values(by=[str(subset)], ascending=True)
+
+    #CSVに変換
+    result_csv.to_csv(output_file, index=False)
+
 #JMAからame_master.csvをダウンロードしなさい - https://www.jma.go.jp/jma/kishou/know/amedas/ame_master.zip
 
 # 気象庁の観測地点コードは、5桁であるが、そのうち先頭2桁は、都道府県振興局番号である。
@@ -41,64 +75,26 @@ def combine_columns(input_file, output_file):
 
         # ヘッダーを書き込む
         header = next(reader)
-        new_header = ["都道府県振興局番号", header[1], header[7], header[8], header[9], header[10]]
+        new_header = ["都道府県振興局番号", header[3], header[7], header[8], header[9], header[10]]
         writer.writerow(new_header)
 
         # 指定された列を結合して新しい行を書き込む
         for row in reader:
-            new_row = [str(extract_first_two_digits_from_number(int(row[1]))), row[1], row[7], row[8], row[9], row[10]]
+            new_row = [str(extract_first_two_digits_from_number(int(row[1]))), row[3], row[7], row[8], row[9], row[10]]
             writer.writerow(new_row)
 
-# CSV重複行削除
-def delete_duplicates(input_file, subset, output_file):
-    # CSV読み込み
-    result_csv = pd.read_csv(input_file, encoding='utf-8')
-
-    #重複雨削除
-    sorted_csv = result_csv.drop_duplicates(subset=[str(subset)], keep='first', inplace=False)
-
-    #ソート
-    result_csv = sorted_csv.sort_values(by=[str(subset)], ascending=True)
-
-    #CSVに変換
-    result_csv.to_csv(output_file, index=False)
-    
 
 
 
-place_prec_codes = ['44'] #都道府県コード
+# 使用例
+input_file_path = 'ame_master.csv'
+tmp_file_path = 'tmp_filtered.csv'
+tmp2_file_path = 'tmp_combine.csv'
+tmp3_file_path = 'filtered.csv'
+output_file_path = 'amedas.csv'
+filter_csv(input_file_path, tmp_file_path)
+combine_columns(tmp_file_path, tmp2_file_path)
+delete_duplicates(tmp2_file_path, "都道府県振興局番号" ,tmp3_file_path)
+prec_codes = column_to_array('filtered.csv', 0)
 
-# ベースURL1  prec_no = 都道府県コード
-base_url_1 = "https://www.data.jma.go.jp/stats/etrn/select/prefecture.php?prec_no=%s"
-
-#文字列を少数に変換
-def str2float(str):
-    try:
-        return float(str)
-    except:
-        return 0.0
-
-# CSVから配列に変換
-def column_to_array(input_file, column_index):
-    result_array = []
-
-    with open(input_file, 'r', encoding='utf-8', newline='') as infile:
-        reader = csv.reader(infile)
-
-        #ヘッダー行のスキップ
-        next(reader)
-
-        # 指定した列を抽出して配列にまとめる
-        for row in reader:
-            if column_index < len(row):
-                result_array.append(row[column_index])
-
-    return result_array
-
-if __name__ == "__main__":
-    input_file_path = 'ame_master.csv'
-    tmp_file_path = 'ame_tmp.csv'
-    output_file_path = 'amedas_list.csv'
-    filter_csv(input_file_path, tmp_file_path)
-    combine_columns(tmp_file_path, tmp_file_path)
-    delete_duplicates(tmp_file_path, "都道府県振興局番号", output_file_path)
+print(prec_codes)
