@@ -26,15 +26,15 @@ def column_to_array(input_file, column_index):
     return result_array
 
 # CSV重複行削除
-def delete_duplicates(input_file, subset, output_file):
+def delete_duplicates(input_file, output_file):
     # CSV読み込み
     result_csv = pd.read_csv(input_file, encoding='utf-8')
 
     #重複雨削除
-    sorted_csv = result_csv.drop_duplicates(subset=[str(subset)], keep='first', inplace=False)
+    sorted_csv = result_csv.drop_duplicates(subset=["都道府県振興局番号", "観測所名"], keep='first', inplace=False)
 
     #ソート
-    result_csv = sorted_csv.sort_values(by=[str(subset)], ascending=True)
+    result_csv = sorted_csv.sort_values(by=["都道府県振興局番号"], ascending=True)
 
     #CSVに変換
     result_csv.to_csv(output_file, index=False)
@@ -83,6 +83,8 @@ def combine_columns(input_file, output_file):
             new_row = [str(extract_first_two_digits_from_number(int(row[1]))), row[3], row[7], row[8], row[9], row[10]]
             writer.writerow(new_row)
 
+#観測地点のコードをダウンロード
+
 
 
 
@@ -94,7 +96,7 @@ tmp3_file_path = 'filtered.csv'
 output_file_path = 'amedas.csv'
 filter_csv(input_file_path, tmp_file_path)
 combine_columns(tmp_file_path, tmp2_file_path)
-delete_duplicates(tmp2_file_path, "都道府県振興局番号" ,tmp3_file_path)
+delete_duplicates(tmp2_file_path ,tmp3_file_path)
 prec_codes = column_to_array('filtered.csv', 0)
 
 print(prec_codes)
