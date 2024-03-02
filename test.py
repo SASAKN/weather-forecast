@@ -5,6 +5,10 @@ import os
 import glob
 import pandas as pd
 
+#気象台都道府県コードは、11から94
+prec_codes = ['44']
+block_name = ['八王子', '東京']
+
 #ベースURL prec_no = 都道府県コード
 base_url = "https://www.data.jma.go.jp/stats/etrn/select/prefecture.php?prec_no=%s"
 
@@ -23,6 +27,17 @@ def column_to_array(input_file, column_index):
             if column_index < len(row):
                 result_array.append(row[column_index])
 
+    return result_array
+
+#都道府県コードにある地域名を出力
+def prec2block(prec_no, input_file):
+    result_array = []
+
+    with open(input_file, 'r', encoding='utf-8', newline='') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) > 0 and row[0].strip() == str(prec_no):
+                result_array.append(row[1].strip())
     return result_array
 
 # CSV重複行削除
@@ -84,19 +99,55 @@ def combine_columns(input_file, output_file):
             writer.writerow(new_row)
 
 #観測地点のコードをダウンロード
+def get_observation_points():
+    for prec in prec_codes:
+        #Indexを作成
+        index = prec_codes.index(prec)
+        for block in block_name:
 
+            #Indexを作成
+            index_2 = block_name.index(block)
+
+            #URLにアクセス
+            req = requests.get(base_url%(prec_codes[index]))
+            req.encoding = req.apparent_encoding
+
+            #スクレイピング
+            page = bs(req.text, 'html.parser')
+
+            #要素を検索してみつける
+            tmp_maps = page.find_all('map', {'name': 'point'})
+            
+            tmp_area = tmp_maps[0].find_all('area', {'alt': block_name[index_2]})
+            print(tmp_area)
+
+
+
+
+
+        
 
 
 
 # 使用例
-input_file_path = 'ame_master.csv'
-tmp_file_path = 'tmp_filtered.csv'
-tmp2_file_path = 'tmp_combine.csv'
-tmp3_file_path = 'filtered.csv'
-output_file_path = 'amedas.csv'
-filter_csv(input_file_path, tmp_file_path)
-combine_columns(tmp_file_path, tmp2_file_path)
-delete_duplicates(tmp2_file_path ,tmp3_file_path)
-prec_codes = column_to_array('filtered.csv', 0)
+        
+if __name__ == "__main__":
+    #CSVの名前
+    input_file_path = 'ame_master.csv'
+    tmp_file_path = 'tmp_filtered.csv'
+    tmp2_file_path = 'tmp_combine.csv'
+    tmp3_file_path = 'filtered.csv'
+    output_file_path = 'amedas.csv'
 
-print(prec_codes)
+    #CSVから気圧を測っている地点を抜き出し
+    filter_csv(input_file_path, tmp_file_path)
+    #必要な情報のみをまとめ
+    combine_columns(tmp_file_path, tmp2_file_path)
+    #重複したものを削除
+    delete_duplicates(tmp2_file_path ,tmp3_file_path)
+
+    #都道府県TO地域
+    print(prec2block('11' ,tmp3_file_path))
+
+    # #地域コードをJMAからスクレイピング
+    # get_observation_points()

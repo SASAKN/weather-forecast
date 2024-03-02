@@ -141,7 +141,7 @@ def direction2degrees(direction):
 def download_data_1():
     for place in place_name_1:
         All_list_1 = [['年月日時', '気圧_現地', '気圧_海面', '降水量', '気温', '湿度', '風速', '風向', '降雪', '天気', '雲量']] #集計データ
-        index = place.index(place)
+        index = place_name_1.index(place)
         for year in range(2023, 2024):
             for month in range(1, 13):
                 for date in range(1, 32):
@@ -201,7 +201,7 @@ def download_data_1():
 def download_data_2():
     for place in place_name_2:
         All_list_2 = [['年月日時', '気圧', '気温', '風速(m/s)', '風向(°)']] #集計データ
-        index = place.index(place)
+        index = place_name_2.index(place)
         for year in range(2023, 2024):
             for month in range(1, 13):
                 for date in range(1, 32):
