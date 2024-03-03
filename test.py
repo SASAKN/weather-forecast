@@ -219,7 +219,7 @@ if __name__ == "__main__":
         index = class_array.index(block_class)
 
         #2次元配列に変換
-        out_array.append(class_array[index])
+        out_array.append(class_array[index].get_array())
 
     print(out_array)
     
