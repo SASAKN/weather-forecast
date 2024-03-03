@@ -82,7 +82,13 @@ def delete_duplicates(input_file, output_file):
 def extract_first_two_digits_from_number(num):
     if isinstance(num, int) and 9999 < num < 100000:
         #スライス
-        return int(str(num)[:2])
+        result = int(str(num)[:2])
+        #沖縄県の処理
+        if result >= 92:
+            return 91
+        else:
+            return result
+
     else:
         return 0
 
@@ -153,7 +159,7 @@ def get_observation_points():
                     print(f'[ INFO ]Block None {block_name[index_2]}')
                 else:
                     #タグから地域コードを抜き出し、配列にクラスごと入れる
-                    print(tag2code(tmp_area[0]))
+                    # print(tag2code(tmp_area[0]))
                     class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
 
 #CSV書き込み
