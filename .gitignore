@@ -1,8 +1,7 @@
 images/
 test/
-*.csv
 .DS_Store
 *.pdf
 *.svg
 *.pdf.svg
-ame_master.csv
+*.csv

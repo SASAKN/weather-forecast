@@ -279,5 +279,4 @@ def weather_map2svg():
                     
 
 if __name__ == "__main__":
-    download_data_weather_map()
-    weather_map2svg()
+    download_data_1()
