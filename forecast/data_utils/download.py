@@ -170,7 +170,7 @@ def download_data_1():
                                 if index_2 == 14: #天気
                                     weather = data[index_2].find("img")
                                     if not weather == None:
-                                        row_data.append(str(weather.get("alt")))
+                                        row_data.append(weather2float(str(weather.get("alt"))))
                                 else:
                                     row_data.append("")
                             elif data[index_2].string == '--':
