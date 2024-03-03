@@ -1,16 +1,99 @@
+import requests
+from bs4 import BeautifulSoup as bs
 import csv
+import os
+import glob
+import pandas as pd
+import re
+
+#気象台都道府県コードは、11から94
+prec_codes = ['44']
+
+#出力の2次元配列を初期化
+out_array = [
+    
+]
+
+# ブロックコードのクラス
+class block_codes:
+    def __init__(self, prec, block, block_code):
+        self.prec = prec
+        self.block = block
+        self.block_code = block_code
+    def get_array(self):
+        return [self.prec, self.block_code, self.block]
+
+# クラスの配列
+class_array = []
+
+#ベースURL prec_no = 都道府県コード
+base_url = "https://www.data.jma.go.jp/stats/etrn/select/prefecture.php?prec_no=%s"
+
+# CSVから配列に変換
+def column_to_array(input_file, column_index):
+    result_array = []
+
+    with open(input_file, 'r', encoding='utf-8', newline='') as infile:
+        reader = csv.reader(infile)
+
+        #ヘッダー行のスキップ
+        next(reader)
+
+        # 指定した列を抽出して配列にまとめる
+        for row in reader:
+            if column_index < len(row):
+                result_array.append(row[column_index])
+
+    return result_array
+
+#Tagをコードに変換
+def tag2code(tag):
+    match = re.search(r"javascript:viewPoint\('.*?','(\d+)',", str(tag))
+    if match:
+        arg = match.group(1)
+        return arg
+    else:
+        return
+
+#都道府県コードにある地域名を出力
+def prec2block(prec_no, input_file):
+    result_array = []
+
+    with open(input_file, 'r', encoding='utf-8', newline='') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) > 0 and row[0].strip() == str(prec_no):
+                result_array.append(row[1].strip())
+    return result_array
+
+# CSV重複行削除
+def delete_duplicates(input_file, output_file):
+    # CSV読み込み
+    result_csv = pd.read_csv(input_file, encoding='utf-8')
+
+    #重複雨削除
+    sorted_csv = result_csv.drop_duplicates(subset=["都道府県振興局番号", "観測所名"], keep='first', inplace=False)
+
+    #ソート
+    result_csv = sorted_csv.sort_values(by=["都道府県振興局番号"], ascending=True)
+
+    #CSVに変換
+    result_csv.to_csv(output_file, index=False)
 
 #JMAからame_master.csvをダウンロードしなさい - https://www.jma.go.jp/jma/kishou/know/amedas/ame_master.zip
-
-
-
 
 # 気象庁の観測地点コードは、5桁であるが、そのうち先頭2桁は、都道府県振興局番号である。
 # そして、都道府県振興局番号は、スクレイピングに必要なものである。
 def extract_first_two_digits_from_number(num):
     if isinstance(num, int) and 9999 < num < 100000:
         #スライス
-        return int(str(num)[:2])
+        result = int(str(num)[:2])
+        #沖縄県の処理
+        if result >= 92:
+            return 91
+        else:
+            return result
+
     else:
         return 0
 
@@ -39,18 +122,102 @@ def combine_columns(input_file, output_file):
 
         # ヘッダーを書き込む
         header = next(reader)
-        new_header = ["都道府県振興局番号", header[1], header[7], header[8], header[9], header[10]]
+        new_header = ["都道府県振興局番号", header[3], header[7], header[8], header[9], header[10]]
         writer.writerow(new_header)
 
         # 指定された列を結合して新しい行を書き込む
         for row in reader:
-            new_row = [str(extract_first_two_digits_from_number(int(row[1]))), row[1], row[7], row[8], row[9], row[10]]
+            new_row = [str(extract_first_two_digits_from_number(int(row[1]))), row[3], row[7], row[8], row[9], row[10]]
             writer.writerow(new_row)
 
+#観測地点のコードをダウンロード
+def get_observation_points():
+    for prec in prec_codes:
+        #Indexを作成
+        index = prec_codes.index(prec)
 
+        #処理中の都道府県を表示
+        print(f'[ PROCESSING ] 処理中の都道府県振興局 : {prec_codes[index]}')
+
+        #地域の配列を作成
+        block_name = prec2block(prec_codes[index], 'filtered.csv')
+        for block in block_name:
+            #Indexを作成
+            index_2 = block_name.index(block)
+
+            #URLにアクセス
+            req = requests.get(base_url%(prec_codes[index]))
+            req.encoding = req.apparent_encoding
+
+            #スクレイピング
+            page = bs(req.text, 'html.parser')
+
+            #要素を検索してみつける
+            tmp_maps = page.find_all('map', {'name': 'point'})
+
+            # エラーハンドリング
+            if tmp_maps == []:
+                print(f'[ INFO ]Prec None {prec_codes[index]}')
+            else:
+                #つくばと奥日光と南大東のための専用処理
+                if block_name[index_2] == "つくば":
+                    block_name[index_2] = "つくば（館野）"
+                elif block_name[index_2] == "奥日光":
+                    block_name[index_2] = "奥日光（日光）"
+                elif block_name[index_2] == "南大東":
+                    block_name[index_2] = "南大東（南大東島）"
+                else:      
+                    tmp_area = tmp_maps[0].find_all('area', {'alt': block_name[index_2]})
+                    if tmp_area == []:
+                        print(f'[ INFO ]Block None {block_name[index_2]}')
+                    else:
+                        #タグから地域コードを抜き出し、配列にクラスごと入れる
+                        # print(tag2code(tmp_area[0]))
+                        class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
+
+#CSV書き込み
+def two_dimension_array2csv(two_dimensional_data, output_csv):
+    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+        #ライターを作成
+        writer = csv.writer(f)
+
+        #2次元配列をCSVの行にする
+        for row in two_dimensional_data:
+            writer.writerow(row)
 
 # 使用例
-input_file_path = 'ame_master.csv'
-output_file_path = 'output_filtered.csv'
-filter_csv(input_file_path, output_file_path)
-combine_columns(input_file_path, output_file_path)
+        
+if __name__ == "__main__":
+    #CSVの名前
+    input_file_path = 'ame_master.csv'
+    tmp_file_path = 'tmp_filtered.csv'
+    tmp2_file_path = 'tmp_combine.csv'
+    tmp3_file_path = 'filtered.csv'
+    output_file_path = 'amedas.csv'
+
+    #CSVから気圧を測っている地点を抜き出し
+    filter_csv(input_file_path, tmp_file_path)
+    #必要な情報のみをまとめ
+    combine_columns(tmp_file_path, tmp2_file_path)
+    #重複したものを削除
+    delete_duplicates(tmp2_file_path ,tmp3_file_path)
+
+    #都道府県コードをまとめる
+    prec_codes = list(set(column_to_array(tmp3_file_path, 0)))
+
+    #地域コードをJMAからスクレイピング
+    get_observation_points()
+
+    #ヘッダーを先に書き込む
+    out_array.append(["都道府県振興局番号", "地域コード", "地域名"])
+
+    #全てのClassを配列に変換
+    for block_class in class_array:
+        #Indexを作成
+        index = class_array.index(block_class)
+
+        #2次元配列に変換
+        out_array.append(class_array[index].get_array())
+
+    two_dimension_array2csv(out_array, output_file_path)
+    
