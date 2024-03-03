@@ -218,6 +218,13 @@ if __name__ == "__main__":
 
         #2次元配列に変換
         out_array.append(class_array[index].get_array())
-
+    
+    #2次元配列をCSVに変換
     two_dimension_array2csv(out_array, output_file_path)
+
+    #テンポラリーなファイルの削除
+    os.remove(tmp2_file_path)
+    os.remove(tmp3_file_path)
+    os.remove(tmp_file_path)
+
     
