@@ -132,7 +132,7 @@ def get_observation_points():
         index = prec_codes.index(prec)
 
         #処理中の都道府県を表示
-        # print(f'処理中の都道府県振興局 : {prec_codes[index]}\n')
+        print(f'[ PROCESSING ] 処理中の都道府県振興局 : {prec_codes[index]}')
 
         #地域の配列を作成
         block_name = prec2block(prec_codes[index], 'filtered.csv')
