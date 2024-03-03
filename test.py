@@ -9,13 +9,18 @@ import re
 #気象台都道府県コードは、11から94
 prec_codes = ['44']
 
+#出力の2次元配列を初期化
+out_array = [
+    
+]
+
 # ブロックコードのクラス
 class block_codes:
     def __init__(self, prec, block, block_code):
         self.prec = prec
         self.block = block
         self.block_code = block_code
-    def get_csv_format(self):
+    def get_array(self):
         return [self.prec, self.block_code, self.block]
 
 # クラスの配列
@@ -171,10 +176,14 @@ def get_observation_points():
                         class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
 
 #CSV書き込み
-# def write_csv(output_file, data) {
+def two_dimension_array2csv(two_dimensional_data, output_csv):
+    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+        #ライターを作成
+        writer = csv.writer(f)
 
-# }
-
+        #2次元配列をCSVの行にする
+        for row in two_dimensional_data:
+            writer.writerow(row)
 
 # 使用例
         
@@ -196,10 +205,21 @@ if __name__ == "__main__":
     #都道府県コードをまとめる
     prec_codes = list(set(column_to_array(tmp3_file_path, 0)))
 
-    #都道府県TO地域
-    print(prec2block(11 ,tmp3_file_path))
-
     #地域コードをJMAからスクレイピング
     get_observation_points()
 
-    print(f'{class_array[0].get_csv_format()}')
+    print(f'{class_array[0].get_array()}')
+
+    #ヘッダーを先に書き込む
+    out_array.append(["都道府県振興局番号", "地域コード", "地域名"])
+
+    #全てのClassを配列に変換
+    for block_class in class_array:
+        #Indexを作成
+        index = class_array.index(block_class)
+
+        #2次元配列に変換
+        out_array.append(class_array[index])
+
+    print(out_array)
+    
