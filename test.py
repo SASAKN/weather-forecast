@@ -22,7 +22,7 @@ block_codes_1 = ['47662'] #地域コード
 
 # ラジオゾンデ観測の地域コードなど
 
-block_codes_2 = ['47646', '47600'] #地域コード
+block_codes_2 = ['47600'] #地域コード
 hours_list_2 = [9, 21] #ラジオゾンデの時間
 
 # ベースURL1  prec_no = 都道府県コード, block_no = 地域コード, year = 年, month = 月, day = 日
@@ -229,7 +229,7 @@ def download_data_1():
 # ラジオゾンデ観測のデータをダウンロード
 def download_data_2():
     for place in block_codes_2:
-        All_list_2 = [['年月日時', '気圧', '気温', '風速(m/s)', '風向(°)']] #集計データ
+        All_list_2 = [['年月日時', '気圧', '気温', '相対湿度(%)' ,'風速(m/s)', '風向(°)']] #集計データ
         index = block_codes_2.index(place)
         for year in range(2023, 2024):
             for month in range(1, 13):
@@ -246,7 +246,8 @@ def download_data_2():
                         page = bs(req.text, 'html.parser')
 
                         #表の2番目のものをデータとして使う
-                        rows = page.select('#tablefix1 .mtx')[1] #TRを取得
+                        if not page.select('#tablefix1 .mtx') == []:
+                            rows = page.select('#tablefix1 .mtx')[1] #TRを取得
 
                         #必要なデータを集め配列にまとめる
                         row_data = [] #初期化
@@ -313,8 +314,10 @@ def weather_map2svg():
 
 if __name__ == "__main__":
 
-    #都道府県コードをまとめる
-    prec_codes_1 = list(set(column_to_array('test.csv', 0)))
+    # #都道府県コードをまとめる
+    # prec_codes_1 = list(set(column_to_array('test.csv', 0)))
 
-    #ダウンロード
-    download_data_1()
+    # #ダウンロード
+    # download_data_1()
+
+    download_data_2()
