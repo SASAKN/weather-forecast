@@ -168,7 +168,7 @@ def download_data_1():
         index = prec_codes_1.index(prec)
 
         # Block Array
-        block_codes_1 = prec2block(prec_codes_1[index], 'test.csv')
+        block_codes_1 = prec2block(prec_codes_1[index], 'amedas.csv')
         for block in block_codes_1:
             index_2 = block_codes_1.index(block)
             for year in range(2023, 2024):
@@ -315,7 +315,7 @@ def weather_map2svg():
 if __name__ == "__main__":
 
     #都道府県コードをまとめる
-    prec_codes_1 = list(set(column_to_array('test.csv', 0)))
+    prec_codes_1 = list(set(column_to_array('amedas.csv', 0)))
 
     #ダウンロード
     download_data_1()
