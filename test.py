@@ -153,14 +153,20 @@ def get_observation_points():
             # エラーハンドリング
             if tmp_maps == []:
                 print(f'[ INFO ]Prec None {prec_codes[index]}')
-            else:      
-                tmp_area = tmp_maps[0].find_all('area', {'alt': block_name[index_2]})
-                if tmp_area == []:
-                    print(f'[ INFO ]Block None {block_name[index_2]}')
-                else:
-                    #タグから地域コードを抜き出し、配列にクラスごと入れる
-                    # print(tag2code(tmp_area[0]))
-                    class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
+            else:
+                #つくばと奥日光のための専用処理
+                if block_name[index_2] == "つくば":
+                    block_name[index_2] = "つくば（館野）"
+                elif block_name[index_2] == "奥日光":
+                    block_name[index_2] = "奥日光（日光）"
+                else:      
+                    tmp_area = tmp_maps[0].find_all('area', {'alt': block_name[index_2]})
+                    if tmp_area == []:
+                        print(f'[ INFO ]Block None {block_name[index_2]}')
+                    else:
+                        #タグから地域コードを抜き出し、配列にクラスごと入れる
+                        # print(tag2code(tmp_area[0]))
+                        class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
 
 #CSV書き込み
 # def write_csv(output_file, data) {
