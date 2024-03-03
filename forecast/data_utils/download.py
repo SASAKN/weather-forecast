@@ -1,3 +1,7 @@
+#==================================================#
+#                    Library                       #
+#==================================================#
+
 import requests
 from bs4 import BeautifulSoup as bs
 import csv
@@ -7,16 +11,18 @@ import os
 import glob
 import subprocess
 
+#==================================================#
+#                    Variable                      #
+#==================================================#
+
 #アメダスや気象台の地上観測データの地域コードなど
 
-place_code_1_prec = ['44'] #都道府県コード
-place_code_1_block = ['47662'] #地域コード
-place_name_1 = ["東京"] #場所の名前
+prec_codes_1 = ['44'] #都道府県コード
+block_codes_1 = ['47662'] #地域コード
 
 # ラジオゾンデ観測の地域コードなど
 
-place_code_2 = ['47646', '47600'] #地域コード
-place_name_2 = ["館野", "輪島"] #場所の名前
+block_codes_2 = ['47600'] #地域コード
 hours_list_2 = [9, 21] #ラジオゾンデの時間
 
 # ベースURL1  prec_no = 都道府県コード, block_no = 地域コード, year = 年, month = 月, day = 日
@@ -28,7 +34,9 @@ base_url_2 = "https://www.data.jma.go.jp/stats/etrn/upper/view/hourly_usp.php?ye
 # ベースURL3 0 = 西暦(4桁) 1 = 西暦下2桁 2 = 月
 base_url_3 = "https://www.data.jma.go.jp/fcd/yoho/data/hibiten/%s/%s%s.pdf"
 
-
+#==================================================#
+#                 Related functions                #
+#==================================================#
 
 #文字列を少数に変換
 def str2float(str):
@@ -37,19 +45,27 @@ def str2float(str):
     except:
         return 0.0
 
+#都道府県コードにある地域コードを出力
+def prec2block(prec_no, input_file):
+    result_array = []
+
+    with open(input_file, 'r', encoding='utf-8', newline='') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) > 0 and row[0].strip() == str(prec_no):
+                result_array.append(row[1].strip())
+    return result_array
+
 # 数字を二桁に変換
 def add_zero_to_single_digit(number):
-    # 数字が一桁の場合
     if 0 <= number < 10:
-        # 0を先頭に足して2桁にする
         result = f'0{number}'
     else:
-        # すでに2桁以上の場合はそのまま
         result = str(number)
     
     return result
 
-# CSVから配列に変換
+# 列を配列に変換
 def column_to_array(input_file, column_index):
     result_array = []
 
@@ -119,14 +135,14 @@ def weather2float(weather):
 
 #雲量を数値変換
 def cloud2float(cloud):
-    if str(cloud).index("+") == 1:
+    if "+" in str(cloud) == 1:
         return str2float(cloud) + 0.5
-    elif str(cloud).index("-") == 1:
+    elif "-" in str(cloud) == 1:
         return str2float(cloud) - 0.5
     else:
         return str2float(cloud)
 
-#16方位をDegreesに変換
+#16方位を度に変換
 def direction2degrees(direction):
     directions = ["北", "北北東", "北東", "東北東", "東", "東南東", "南東", "南南東", 
                   "南", "南南西", "南西", "西南西", "西", "西北西", "北西", "北北西"]
@@ -137,71 +153,84 @@ def direction2degrees(direction):
     direction_index = directions.index(direction)
     return direction_index * degrees_per_direction
 
+#==================================================#
+#                    Functions                     #
+#==================================================#
+
 # 気象台データをダウンロード
 def download_data_1():
-    for place in place_name_1:
+    for prec in prec_codes_1:
+
+        #Header
         All_list_1 = [['年月日時', '気圧_現地', '気圧_海面', '降水量', '気温', '湿度', '風速', '風向', '降雪', '天気', '雲量']] #集計データ
-        index = place_name_1.index(place)
-        for year in range(2023, 2024):
-            for month in range(1, 13):
-                for date in range(1, 32):
-                    #処理中の年月日を表示
-                    print(str(year) + "/" + str(month) + "/" + str(date))
+        
+        #Index
+        index = prec_codes_1.index(prec)
 
-                    #URL作成
-                    req = requests.get(base_url_1%(place_code_1_prec[index], place_code_1_block[index], year, month, date))
-                    req.encoding = req.apparent_encoding
+        # Block Array
+        block_codes_1 = prec2block(prec_codes_1[index], 'test.csv')
+        for block in block_codes_1:
+            index_2 = block_codes_1.index(block)
+            for year in range(2023, 2024):
+                for month in range(1, 13):
+                    for date in range(1, 32):
+                        #処理中の年月日を表示
+                        print(str(year) + "/" + str(month) + "/" + str(date))
 
-                    #スクレイピング
-                    page = bs(req.text, 'html.parser')
+                        #URL作成
+                        req = requests.get(base_url_1%(prec_codes_1[index], block_codes_1[index_2], year, month, date))
+                        req.encoding = req.apparent_encoding
 
-                    #3番目からのデータを使う
-                    tmp_rows = page.select('#tablefix1 .mtx')
-                    rows = tmp_rows[2:26]
+                        #スクレイピング
+                        page = bs(req.text, 'html.parser')
 
-                    for row in rows: 
-                        #表の中身を抜き出す
-                        data = row.select('td')
+                        #3番目からのデータを使う
+                        tmp_rows = page.select('#tablefix1 .mtx')
+                        rows = tmp_rows[2:26]
 
-                        # 必要なデータを集め、配列にまとめる 
-                        row_data = [] #初期化
-                        for index_2 in [0, 1, 2, 3, 4, 7, 8, 9, 12, 14, 15]:
-                            if data[index_2].string == None:
-                                if index_2 == 14: #天気
-                                    weather = data[index_2].find("img")
-                                    if not weather == None:
-                                        row_data.append(weather2float(str(weather.get("alt"))))
+                        for row in rows: 
+                            #表の中身を抜き出す
+                            data = row.select('td')
+
+                            # 必要なデータを集め、配列にまとめる 
+                            row_data = [] #初期化
+                            for index_3 in [0, 1, 2, 3, 4, 7, 8, 9, 12, 14, 15]:
+                                if data[index_3].string == None:
+                                    if index_3 == 14: #天気
+                                        weather = data[index_3].find("img")
+                                        if not weather == None:
+                                            row_data.append(weather2float(str(weather.get("alt"))))
+                                    else:
+                                        row_data.append("")
+                                elif data[index_3].string == '--':
+                                    if index_3 == 3: #降水量
+                                        row_data.append(str2float("0"))
+                                    elif index_3 == 12: #降雪量
+                                        row_data.append(str2float("0"))
+                                    else:
+                                        row_data.append("")
                                 else:
-                                    row_data.append("")
-                            elif data[index_2].string == '--':
-                                if index_2 == 3: #降水量
-                                    row_data.append(str2float("0"))
-                                elif index_2 == 12: #降雪量
-                                    row_data.append(str2float("0"))
-                                else:
-                                    row_data.append("")
-                            else:
-                                if index_2 == 0: #年月日時
-                                    row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[index_2].string)) #年月日時
-                                elif index_2 == 9: #風向
-                                    row_data.append(direction2degrees(data[index_2].string))
-                                elif index_2 == 15: #雲量
-                                    row_data.append(str(data[index_2].string))
-                                else:
-                                    row_data.append(str2float(data[index_2].string)) # 気圧_現地, 気圧_海面, 降水量, 気温, 湿度, 風速, 降雪量
-                        
-                        #まとめる
-                        All_list_1.append(row_data)
-        with open(place + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
-            writer = csv.writer(file, lineterminator='\n')
-            writer.writerows(All_list_1)
+                                    if index_3 == 0: #年月日時
+                                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[index_3].string)) #年月日時
+                                    elif index_3 == 9: #風向
+                                        row_data.append(direction2degrees(data[index_3].string))
+                                    elif index_3 == 15: #雲量
+                                        row_data.append(str(data[index_3].string))
+                                    else:
+                                        row_data.append(str2float(data[index_3].string)) # 気圧_現地, 気圧_海面, 降水量, 気温, 湿度, 風速, 降雪量
 
+                            #行をまとめる
+                            All_list_1.append(row_data)
+            #地域ごとにCSVを作成
+            with open(block + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
+                writer = csv.writer(file, lineterminator='\n')
+                writer.writerows(All_list_1)
 
 # ラジオゾンデ観測のデータをダウンロード
 def download_data_2():
-    for place in place_name_2:
-        All_list_2 = [['年月日時', '気圧', '気温', '風速(m/s)', '風向(°)']] #集計データ
-        index = place_name_2.index(place)
+    for place in block_codes_2:
+        All_list_2 = [['年月日時', '気圧', '気温', '相対湿度(%)' ,'風速(m/s)', '風向(°)']] #集計データ
+        index = block_codes_2.index(place)
         for year in range(2023, 2024):
             for month in range(1, 13):
                 for date in range(1, 32):
@@ -210,18 +239,20 @@ def download_data_2():
                         print(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour))
 
                         #URL作成
-                        req = requests.get(base_url_2%(year, month, date, hour, place_code_2[index]))
+                        req = requests.get(base_url_2%(year, month, date, hour, block_codes_2[index]))
                         req.encoding = req.apparent_encoding
                         
                         #スクレイピング
                         page = bs(req.text, 'html.parser')
 
                         #表の2番目のものをデータとして使う
-                        rows = page.select('#tablefix1 .mtx')[1] #TRを取得
+                        if not page.select('#tablefix1 .mtx') == []:
+                            rows = page.select('#tablefix1 .mtx')[1] #TRを取得
 
                         #必要なデータを集め配列にまとめる
                         row_data = [] #初期化
                         data = rows.select('td')
+
                         if not data[0].string == "///":
                             row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(hour)) #年月日時
                             row_data.append(str2float(data[0].string)) #気圧
@@ -237,7 +268,7 @@ def download_data_2():
             writer = csv.writer(file, lineterminator='\n')
             writer.writerows(All_list_2)
 
-#過去の天気図のダウンロード
+#過去の天気図をダウンロード
 def download_data_weather_map():
     for year in range(2002, 2003):
         for year_2 in range(2, 3):
@@ -277,6 +308,17 @@ def weather_map2svg():
         subprocess.run(["pdf2svg", pdf_path, f'{pdf_path}.svg'])
         os.remove(pdf_path)
                     
+#==================================================#
+#                     Main                         #
+#==================================================#
 
 if __name__ == "__main__":
+
+    #都道府県コードをまとめる
+    prec_codes_1 = list(set(column_to_array('test.csv', 0)))
+
+    #ダウンロード
     download_data_1()
+
+    download_data_weather_map()
+    weather_map2svg()

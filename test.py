@@ -320,4 +320,5 @@ if __name__ == "__main__":
     # #ダウンロード
     # download_data_1()
 
-    download_data_2()
+    download_data_weather_map()
+    weather_map2svg()
