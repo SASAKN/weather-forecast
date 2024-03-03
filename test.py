@@ -221,5 +221,5 @@ if __name__ == "__main__":
         #2次元配列に変換
         out_array.append(class_array[index].get_array())
 
-    print(out_array)
+    two_dimension_array2csv(out_array, output_file_path)
     
