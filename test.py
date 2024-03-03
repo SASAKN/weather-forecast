@@ -132,7 +132,7 @@ def get_observation_points():
         index = prec_codes.index(prec)
 
         #処理中の都道府県を表示
-        print(f'処理中の都道府県振興局 : {prec_codes[index]}\n')
+        # print(f'処理中の都道府県振興局 : {prec_codes[index]}\n')
 
         #地域の配列を作成
         block_name = prec2block(prec_codes[index], 'filtered.csv')
@@ -154,11 +154,13 @@ def get_observation_points():
             if tmp_maps == []:
                 print(f'[ INFO ]Prec None {prec_codes[index]}')
             else:
-                #つくばと奥日光のための専用処理
+                #つくばと奥日光と南大東のための専用処理
                 if block_name[index_2] == "つくば":
                     block_name[index_2] = "つくば（館野）"
                 elif block_name[index_2] == "奥日光":
                     block_name[index_2] = "奥日光（日光）"
+                elif block_name[index_2] == "南大東":
+                    block_name[index_2] = "南大東（南大東島）"
                 else:      
                     tmp_area = tmp_maps[0].find_all('area', {'alt': block_name[index_2]})
                     if tmp_area == []:
