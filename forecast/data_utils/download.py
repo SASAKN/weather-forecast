@@ -38,6 +38,15 @@ base_url_3 = "https://www.data.jma.go.jp/fcd/yoho/data/hibiten/%s/%s%s.pdf"
 #                 Related functions                #
 #==================================================#
 
+#ファイル名を取得
+def extract_filename(file_path):
+    file_name = os.path.basename(file_path)
+    
+    file_name_without_extension, _ = os.path.splitext(file_name)
+    
+    return file_name_without_extension
+
+
 #文字列を少数に変換
 def str2float(str):
     try:
@@ -171,10 +180,11 @@ def download_data_1():
         block_codes_1 = prec2block(prec_codes_1[index], 'amedas.csv')
         for block in block_codes_1:
             index_2 = block_codes_1.index(block)
-            for year in range(2023, 2024):
+            for year in range(2000, 2025):
                 for month in range(1, 13):
                     for date in range(1, 32):
                         #処理中の年月日を表示
+                        print(f'処理中振興局 :{prec_codes_1[index]}\n 処理中地域: {block_codes_1[index_2]}')
                         print(str(year) + "/" + str(month) + "/" + str(date))
 
                         #URL作成
@@ -270,12 +280,11 @@ def download_data_2():
 
 #過去の天気図をダウンロード
 def download_data_weather_map():
-    for year in range(2002, 2003):
-        for year_2 in range(2, 3):
+    for year in range(2002, 2023):
+        for year_2 in range(2, 23):
             for month in range(1, 13):
                 #処理中の年月を表示
                 print(str(year) + "/" + str(month) + "/")
-
 
                 #URL作成
                 req = requests.get(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
@@ -286,7 +295,10 @@ def download_data_weather_map():
                     file_name = os.path.basename(base_url_3%(year, add_zero_to_single_digit(year_2), add_zero_to_single_digit(month)))
 
                     #保存ディレクトリ
-                    save_dir = './map/'
+                    save_dir = './map'
+
+                    # ディレクトリが存在しない場合は作成
+                    os.makedirs(save_dir, exist_ok=True)    
 
                     #パス生成
                     save_path = os.path.join(save_dir, file_name)
@@ -305,7 +317,7 @@ def weather_map2svg():
     
     #そのPDFをひとつづつSVGに変換する
     for pdf_path in pdf_list:
-        subprocess.run(["pdf2svg", pdf_path, f'{pdf_path}.svg'])
+        subprocess.run(["pdf2svg", pdf_path, f'map/{extract_filename(pdf_path)}%d.svg', "all"])
         os.remove(pdf_path)
                     
 #==================================================#
@@ -319,6 +331,3 @@ if __name__ == "__main__":
 
     #ダウンロード
     download_data_1()
-
-    download_data_weather_map()
-    weather_map2svg()
