@@ -240,7 +240,7 @@ def download_data_1():
                                         elif index_3 == 9: #風向
                                             row_data.append(direction2degrees(data[index_3].string))
                                         elif index_3 == 15: #雲量
-                                            row_data.append(str(data[index_3].string))
+                                            row_data.append(cloud2float(str(data[index_3].string)))
                                         else:
                                             row_data.append(str2float(data[index_3].string)) # 気圧_現地, 気圧_海面, 降水量, 気温, 湿度, 風速, 降雪量
 
