@@ -91,6 +91,17 @@ def column_to_array(input_file, column_index):
 
     return result_array
 
+#ファイルがあるかどうか確認 ある時は、1 ない時は、0を返す
+def check_exists_file(file):
+    if os.path.exists(file):
+        return 1
+    else:
+        return 0
+    
+# 地域コードに.csvを足してファイル名にする
+def block2file_name(block):
+    return f'{str(block)}.csv'
+
 #天気を数値に変換 - 参照 https://www.data.jma.go.jp/obd/stats/data/mdrr/man/tenki_kigou.html
 def weather2float(weather):
     if  weather == "快晴":
@@ -179,62 +190,68 @@ def download_data_1():
         # Block Array
         block_codes_1 = prec2block(prec_codes_1[index], 'amedas.csv')
         for block in block_codes_1:
+            #Index作成
             index_2 = block_codes_1.index(block)
-            for year in range(2000, 2025):
-                for month in range(1, 13):
-                    for date in range(1, 32):
-                        #処理中の年月日を表示
-                        print(f'処理中振興局 :{prec_codes_1[index]}\n 処理中地域: {block_codes_1[index_2]}')
-                        print(str(year) + "/" + str(month) + "/" + str(date))
 
-                        #URL作成
-                        req = requests.get(base_url_1%(prec_codes_1[index], block_codes_1[index_2], year, month, date))
-                        req.encoding = req.apparent_encoding
+            #ファイルの存在確認 - もし、ファイルがないならば
+            if check_exists_file(block2file_name(block_codes_1[index_2])) == 0:
+                for year in range(2000, 2025):
+                    for month in range(1, 13):
+                        for date in range(1, 32):
+                            #処理中の年月日を表示
+                            print(f'処理中振興局 :{prec_codes_1[index]}\n 処理中地域: {block_codes_1[index_2]}')
+                            print(str(year) + "/" + str(month) + "/" + str(date))
 
-                        #スクレイピング
-                        page = bs(req.text, 'html.parser')
+                            #URL作成
+                            req = requests.get(base_url_1%(prec_codes_1[index], block_codes_1[index_2], year, month, date))
+                            req.encoding = req.apparent_encoding
 
-                        #3番目からのデータを使う
-                        tmp_rows = page.select('#tablefix1 .mtx')
-                        rows = tmp_rows[2:26]
+                            #スクレイピング
+                            page = bs(req.text, 'html.parser')
 
-                        for row in rows: 
-                            #表の中身を抜き出す
-                            data = row.select('td')
+                            #3番目からのデータを使う
+                            tmp_rows = page.select('#tablefix1 .mtx')
+                            rows = tmp_rows[2:26]
 
-                            # 必要なデータを集め、配列にまとめる 
-                            row_data = [] #初期化
-                            for index_3 in [0, 1, 2, 3, 4, 7, 8, 9, 12, 14, 15]:
-                                if data[index_3].string == None:
-                                    if index_3 == 14: #天気
-                                        weather = data[index_3].find("img")
-                                        if not weather == None:
-                                            row_data.append(weather2float(str(weather.get("alt"))))
+                            for row in rows: 
+                                #表の中身を抜き出す
+                                data = row.select('td')
+
+                                # 必要なデータを集め、配列にまとめる 
+                                row_data = [] #初期化
+                                for index_3 in [0, 1, 2, 3, 4, 7, 8, 9, 12, 14, 15]:
+                                    if data[index_3].string == None:
+                                        if index_3 == 14: #天気
+                                            weather = data[index_3].find("img")
+                                            if not weather == None:
+                                                row_data.append(weather2float(str(weather.get("alt"))))
+                                        else:
+                                            row_data.append("")
+                                    elif data[index_3].string == '--':
+                                        if index_3 == 3: #降水量
+                                            row_data.append(str2float("0"))
+                                        elif index_3 == 12: #降雪量
+                                            row_data.append(str2float("0"))
+                                        else:
+                                            row_data.append("")
                                     else:
-                                        row_data.append("")
-                                elif data[index_3].string == '--':
-                                    if index_3 == 3: #降水量
-                                        row_data.append(str2float("0"))
-                                    elif index_3 == 12: #降雪量
-                                        row_data.append(str2float("0"))
-                                    else:
-                                        row_data.append("")
-                                else:
-                                    if index_3 == 0: #年月日時
-                                        row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[index_3].string)) #年月日時
-                                    elif index_3 == 9: #風向
-                                        row_data.append(direction2degrees(data[index_3].string))
-                                    elif index_3 == 15: #雲量
-                                        row_data.append(str(data[index_3].string))
-                                    else:
-                                        row_data.append(str2float(data[index_3].string)) # 気圧_現地, 気圧_海面, 降水量, 気温, 湿度, 風速, 降雪量
+                                        if index_3 == 0: #年月日時
+                                            row_data.append(str(year) + "/" + str(month) + "/" + str(date) + "/" + str(data[index_3].string)) #年月日時
+                                        elif index_3 == 9: #風向
+                                            row_data.append(direction2degrees(data[index_3].string))
+                                        elif index_3 == 15: #雲量
+                                            row_data.append(str(data[index_3].string))
+                                        else:
+                                            row_data.append(str2float(data[index_3].string)) # 気圧_現地, 気圧_海面, 降水量, 気温, 湿度, 風速, 降雪量
 
-                            #行をまとめる
-                            All_list_1.append(row_data)
-            #地域ごとにCSVを作成
-            with open(block + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
-                writer = csv.writer(file, lineterminator='\n')
-                writer.writerows(All_list_1)
+                                #行をまとめる
+                                All_list_1.append(row_data)
+                #地域ごとにCSVを作成
+                with open(block + '.csv', 'w',encoding="utf_8_sig") as file: #文字化け防止
+                    writer = csv.writer(file, lineterminator='\n')
+                    writer.writerows(All_list_1)
+            else:
+                print(f'[ SKIP ]都道府県振興局 : {prec_codes_1[index]} 地点番号: {block_codes_1[index_2]}は、スキップされました。')
 
 # ラジオゾンデ観測のデータをダウンロード
 def download_data_2():
