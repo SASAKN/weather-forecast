@@ -5,6 +5,7 @@
 # from datetime import datetime as dt
 # from datetime import timedelta
 
+#日付を季節に変換
 def date2season(month, day):
     month, day = int(month), int(day)
     
@@ -45,50 +46,36 @@ def date2season(month, day):
     else:
         return 4 #エラー
 
+#CSVを読み込む
+def load_csv(input_csv):
+    data = pd.read_csv(input_csv)
 
+    #年月日時をPythonのdatetime64データ型に変換
+    data['年月日時'] = pd.to_datetime(data['年月日時'])
 
-        
+    #項目ごとに列を作成
+    data['年'] = data['年月日時'].dt.year
+    data['月'] = data['年月日時'].dt.month
+    data['日'] = data['年月日時'].dt.day
+    data['時'] = data['年月日時'].dt.hour
 
-        
+    #季節を追加
 
+    return data
 
+#特徴量を抽出
+def drop_feautures(input_data):
+    #必要な列のみを抽出
+    feautures = input_data.drop(['年月日時', '気圧_現地', '気圧_海面'], axis=1)
 
+    #ターゲットを抽出
+    target = feautures['気圧_現地' , '気圧_海面']
 
+    return target
 
-    
-
-
-
-# #CSVを読み込む
-# def load_csv(input_csv):
-#     data = pd.read_csv(input_csv)
-
-#     #年月日時をPythonのdatetime64データ型に変換
-#     data['年月日時'] = pd.to_datetime(data['年月日時'])
-
-#     #項目ごとに列を作成
-#     data['年'] = data['年月日時'].dt.year
-#     data['月'] = data['年月日時'].dt.month
-#     data['日'] = data['年月日時'].dt.day
-#     data['時'] = data['年月日時'].dt.hour
-
-#     #季節を追加
-
-#     return data
-
-# #特徴量を抽出
-# def drop_feautures(input_data):
-#     #必要な列のみを抽出
-#     feautures = input_data.drop(['年月日時', '気圧_現地', '気圧_海面'], axis=1)
-
-#     #ターゲットを抽出
-#     target = feautures['気圧_現地' , '気圧_海面']
-
-#     return target
-
-# #欠陥値を調べる
-# def find_defective_value(input_data):
-#     return input_data.isnull().sum()
+#欠陥値を調べる
+def find_defective_value(input_data):
+    return input_data.isnull().sum()
 
 
 #抽出したものからトレーニングデータ作成
@@ -98,4 +85,4 @@ def date2season(month, day):
 #画像生成
 
 #メイン
-print(date2season('5', '6'))
+print(date2season('5', '4'))
