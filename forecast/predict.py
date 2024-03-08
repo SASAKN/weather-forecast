@@ -1,9 +1,9 @@
-# # AIを使った希少予測
-# import os
-# import numpy as np
-# import pandas as pd
-# from datetime import datetime as dt
-# from datetime import timedelta
+# AIを使った希少予測
+import os
+import numpy as np
+import pandas as pd
+from datetime import datetime as dt
+from datetime import timedelta
 
 #日付を季節に変換
 def date2season(month, day):
@@ -14,7 +14,6 @@ def date2season(month, day):
         return 4 # 不正な日付
     
     #月を確認 - 1, 2季節ごとに判定
-
     if month == 2: #春,冬
         if day >= 4:
             return 0 #春
@@ -45,23 +44,37 @@ def date2season(month, day):
         return 3
     else:
         return 4 #エラー
+    
+# 数字を二桁に変換
+def add_zero_to_single_digit(number):
+    if 0 <= int(number) < 10:
+        result = f'0{number}'
+    else:
+        result = str(number)
+    
+    return result
 
 #CSVを読み込む
 def load_csv(input_csv):
-    data = pd.read_csv(input_csv)
+    #CSVを読み込む
+    data = pd.read_csv(input_csv, dtype={'column_name': str}, low_memory=False)
 
-    #年月日時をPythonのdatetime64データ型に変換
-    data['年月日時'] = pd.to_datetime(data['年月日時'])
+    #CSVから日付を0埋め
+    added_zero_dates = []
+    for date in data['年月日時'].values.tolist():
+        date_parts = date.split('/')
+        year = int(date_parts[0])
+        month = int(add_zero_to_single_digit(date_parts[1]))
+        day = int(add_zero_to_single_digit(date_parts[2]))
+        hour = int(add_zero_to_single_digit(date_parts[3]))
 
-    #項目ごとに列を作成
-    data['年'] = data['年月日時'].dt.year
-    data['月'] = data['年月日時'].dt.month
-    data['日'] = data['年月日時'].dt.day
-    data['時'] = data['年月日時'].dt.hour
+        added_zero_dates.append({'年': year, '月': month, '日': day, '時': hour})
 
-    #季節を追加
+    #結合
+    df_added_zero = pd.DataFrame(added_zero_dates)
+    data_2 = pd.concat([data, df_added_zero], axis=1)
 
-    return data
+    print(data_2)
 
 #特徴量を抽出
 def drop_feautures(input_data):
@@ -85,4 +98,4 @@ def find_defective_value(input_data):
 #画像生成
 
 #メイン
-print(date2season('5', '4'))
+load_csv('test.csv')
