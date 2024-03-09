@@ -95,27 +95,6 @@ def add_zero_to_single_digit(number):
     
     return result
 
-
-#YYYY/MM/DD/HHを変換
-def convert_to_datetime(yymmddhh):
-    # 文字列を"/"で分割
-    parts = yymmddhh.split("/")
-    
-    # 年、月、日、時を取得
-    year = int(parts[0])
-    month = int(parts[1])
-    day = int(parts[2])
-    hour = int(parts[3])
-    
-    # 分とマイクロ秒をゼロに設定
-    minute = 0
-    microsecond = 0
-    
-    # テキスト形式で結果を返す
-    result_text = f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}.{microsecond:06d}"
-    
-    return result_text
-
 #24時を0時に変換
 def format_hour(hour):
     if str(hour) == '24':
@@ -140,14 +119,24 @@ def load_csv(input_csv):
         hour = format_hour(add_zero_to_single_digit(date_parts[3]))
         minute = '00'
 
-        #DateTime64に変換
-        datetime64_str = convert_to_datetime(f'{year}/{month}/{day}/{hour}')
+        #datetimeに変換
+        #エラーの原因がわかった 2/30 2/31などは存在しない
+        try: 
+            datetime_str = np.datetime64(f'{year}-{month}-{day}T{hour}:00:00')
+        except Exception:
+            try:
+                datetime_str = np.datetime64(f'{year}-{month}-{add_zero_to_single_digit(str(int(day) - 1))}T{hour}:00:00')
+            except Exception:
+                try:
+                    datetime_str = np.datetime64(f'{year}-{month}-{add_zero_to_single_digit(str(int(day) - 2))}T{hour}:00:00')
+                except Exception:
+                    datetime_str = np.datetime64(f'{year}-{month}-{add_zero_to_single_digit(str(int(day) - 3))}T{hour}:00:00')
 
         #季節に変換
         season = date2season(date_parts[1], date_parts[2])
 
         #データの配列作成
-        added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime64': datetime64_str})
+        added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime': datetime_str})
         season_data.append({'season': season})
 
     #データを作成、統合
@@ -166,9 +155,9 @@ def drop_features(input_data):
     features_3 = input_data['風速'] #風速(説明変数)
     features_4 = input_data['風向'] #風向(説明変数)
     features_5 = input_data['湿度'] #湿度(説明変数)
-    features_6 = input_data['datetime64'] #時刻データ(説明変数)
+    features_6 = input_data['datetime'] #時刻データ(説明変数)
     features_7 = input_data['season']
-    headers = ['現地気圧', '海面気圧', '気温', '風速', '風向', '湿度', 'datetime64', 'season']
+    headers = ['現地気圧', '海面気圧', '気温', '風速', '風向', '湿度', 'datetime', 'season']
     tmp_df = pd.DataFrame(headers)
     tmp_df = pd.concat([target, features_1, features_2, features_3, features_4, features_5, features_6, features_7], axis=1)
     features = pd.DataFrame(tmp_df)
@@ -188,7 +177,7 @@ def find_lack_value(input_data):
 
 #データの正規化
 def scale_features(features):
-    features_array = features.drop(['datetime64'], axis=1)
+    features_array = features.drop(['datetime'], axis=1).to_numpy()
     scaler = MinMaxScaler()
     features_scaled = scaler.fit_transform(features_array)
     return features_scaled
@@ -246,9 +235,6 @@ if __name__ == "__main__":
 
     #学習データと予測データに分割 
     train_x, test_x, train_y, test_y = train_test_split(scaled_features, features['気圧_海面'], train_size=0.8)
-
-    #学習
-    model(train_x, test_x, train_y, test_y)
 
 
 
