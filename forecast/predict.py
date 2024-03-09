@@ -1,3 +1,7 @@
+#==================================================#
+#                    Library                       #
+#==================================================#
+
 # AIを使った希少予測
 import os
 
@@ -16,6 +20,23 @@ from datetime import timedelta
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
+#機械学習ライブラリー
+import tensorflow as tf
+from keras.models import Sequential
+from keras.layers import ConvLSTM2D, BatchNormalization, Flatten, Dense
+
+#==================================================#
+#                    Variable                      #
+#==================================================#
+
+# 設定
+n_seq = 5 #シーケンス
+n_features = 8 #特徴量の数
+
+
+#==================================================#
+#                 Releated Functions               #
+#==================================================#
 
 #ファイル名を取得
 def extract_filename(file_path):
@@ -173,8 +194,39 @@ def scale_features(features):
     features_scaled = scaler.fit_transform(features_array)
     return features_scaled
 
+#モデル作成
+def model(x_train, x_test, y_train, y_test):
+    #モデル構築
+    model = Sequential()
+    model.add(ConvLSTM2D(filters=64, kernel_size=(5, 5), padding='same', input_shape=(None, n_seq, n_features, 1), return_sequences=True))
+    model.add(BatchNormalization())
+
+    model.add(ConvLSTM2D(filters=64, kernel_size=(5, 5), padding='same', return_sequences=True))
+    model.add(BatchNormalization())
+    
+
+    model.add(ConvLSTM2D(filters=64, kernel_size=(5, 5), padding='same', return_sequences=True))
+    model.add(BatchNormalization())
+
+    model.add(Flatten())
+    # model.add(Dense(32,activation='relu', input_shape=(None, 1)))
+
+    model.compile(optimizer='adam', loss='mse')
+
+    #モデル訓練
+    model.fit(x_train, y_train, epochs=50, batch_size=32, validation_data=(x_test, y_test))
+
+    #モデル評価
+    val_loss = model.evacute(x_test, y_test)
+    print(f'テストのロス :{val_loss}')
+
+    #モデルから予測
+    predictions = model.predict(x_test)
+    print(predictions)
+    
+
+
 #トレーニング
-def train_model()
 
 
 #画像生成
@@ -197,6 +249,7 @@ if __name__ == "__main__":
     train_x, test_x, train_y, test_y = train_test_split(scaled_features, features['気圧_海面'], train_size=0.8)
 
     #学習
+    model(train_x, test_x, train_y, test_y)
 
 
 
