@@ -1,9 +1,29 @@
 # AIを使った希少予測
 import os
+
+#データ処理
 import numpy as np
 import pandas as pd
+
+#グラフ描画
+import matplotlib.pyplot as plt
+
+#時系列処理
 from datetime import datetime as dt
 from datetime import timedelta
+
+#機械学習データの用意
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+
+#ファイル名を取得
+def extract_filename(file_path):
+    file_name = os.path.basename(file_path)
+    
+    file_name_without_extension, _ = os.path.splitext(file_name)
+    
+    return file_name_without_extension
 
 #日付を季節に変換
 def date2season(month, day):
@@ -114,33 +134,75 @@ def load_csv(input_csv):
     df_season = pd.DataFrame(season_data)
     data_2 = pd.concat([df_added_zero, df_season, data], axis=1)
 
-    print(data_2.head(10))
     return data_2
 
-
-# 気圧の欠損値を補正
-    
-
 #特徴量を抽出
-def drop_feautures(input_data):
-    #必要な列のみを抽出
-    feautures = input_data.drop(['年月日時', '気圧_現地', '気圧_海面'], axis=1)
+def drop_features(input_data):
+    #特徴量を抽出したデータフレームを作成
+    target = input_data['気圧_海面'] #海面気圧(目的変数)
+    features_1 = input_data['気圧_現地'] #現地気圧(説明変数)
+    features_2 = input_data['気温'] #気温(説明変数)
+    features_3 = input_data['風速'] #風速(説明変数)
+    features_4 = input_data['風向'] #風向(説明変数)
+    features_5 = input_data['湿度'] #湿度(説明変数)
+    features_6 = input_data['datetime64'] #時刻データ(説明変数)
+    features_7 = input_data['season']
+    headers = ['現地気圧', '海面気圧', '気温', '風速', '風向', '湿度', 'datetime64', 'season']
+    tmp_df = pd.DataFrame(headers)
+    tmp_df = pd.concat([target, features_1, features_2, features_3, features_4, features_5, features_6, features_7], axis=1)
+    features = pd.DataFrame(tmp_df)
+    return features
 
-    #ターゲットを抽出
-    target = feautures['気圧_現地' , '気圧_海面']
+#欠陥値を埋める
+def fill_lack_value(input_df):
+    #欠陥値の補完
+    result = pd.DataFrame()
+    input_df.fillna(method="ffill", inplace=True)
+    result = input_df
+    return result
 
-    return target
 
 #欠陥値を調べる
-def find_defective_value(input_data):
+def find_lack_value(input_data):
     return input_data.isnull().sum()
 
-
-#抽出したものからトレーニングデータ作成
+#データの正規化
+def scale_features(features):
+    features_array = features.drop(['datetime64'], axis=1)
+    scaler = MinMaxScaler()
+    features_scaled = scaler.fit_transform(features_array)
+    return features_scaled
 
 #トレーニング
+def train_model()
+
 
 #画像生成
 
 #メイン
-load_csv('test.csv')
+if __name__ == "__main__":
+    #特徴量を抽出
+    features = drop_features(load_csv('test.csv'))
+
+    #欠陥値を表示
+    print(find_lack_value(features))
+
+    #欠陥値を補完
+    fill_lack_value(features)
+
+    #データの正規化　ー　ただし日時は、正規化を行わない
+    scaled_features = scale_features(features)
+
+    #学習データと予測データに分割 
+    train_x, test_x, train_y, test_y = train_test_split(scaled_features, features['気圧_海面'], train_size=0.8)
+
+    #学習
+
+
+
+
+
+
+
+
+    
