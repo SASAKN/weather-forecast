@@ -54,6 +54,34 @@ def add_zero_to_single_digit(number):
     
     return result
 
+
+#YYYY/MM/DD/HHを変換
+def convert_to_datetime(yymmddhh):
+    # 文字列を"/"で分割
+    parts = yymmddhh.split("/")
+    
+    # 年、月、日、時を取得
+    year = int(parts[0])
+    month = int(parts[1])
+    day = int(parts[2])
+    hour = int(parts[3])
+    
+    # 分とマイクロ秒をゼロに設定
+    minute = 0
+    microsecond = 0
+    
+    # テキスト形式で結果を返す
+    result_text = f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}.{microsecond:06d}"
+    
+    return result_text
+
+#24時を0時に変換
+def format_hour(hour):
+    if str(hour) == '24':
+        return '00'
+    else:
+        return str(hour) 
+
 #CSVを読み込む
 def load_csv(input_csv):
     #CSVを読み込む
@@ -61,18 +89,30 @@ def load_csv(input_csv):
 
     #CSVから日付を0埋め
     added_zero_dates = []
+    season_data = []
     for date in data['年月日時'].values.tolist():
+        #/で分けて0埋め
         date_parts = date.split('/')
         year = int(date_parts[0])
-        month = int(add_zero_to_single_digit(date_parts[1]))
-        day = int(add_zero_to_single_digit(date_parts[2]))
-        hour = int(add_zero_to_single_digit(date_parts[3]))
+        month = add_zero_to_single_digit(date_parts[1])
+        day = add_zero_to_single_digit(date_parts[2])
+        hour = format_hour(add_zero_to_single_digit(date_parts[3]))
+        minute = '00'
 
-        added_zero_dates.append({'年': year, '月': month, '日': day, '時': hour})
+        #DateTime64に変換
+        datetime64_str = convert_to_datetime(f'{year}/{month}/{day}/{hour}')
 
-    #結合
+        #季節に変換
+        season = date2season(date_parts[1], date_parts[2])
+
+        #データの配列作成
+        added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime64': datetime64_str})
+        season_data.append({'season': season})
+
+    #データを作成、統合
     df_added_zero = pd.DataFrame(added_zero_dates)
-    data_2 = pd.concat([data, df_added_zero], axis=1)
+    df_season = pd.DataFrame(season_data)
+    data_2 = pd.concat([df_added_zero, df_season, data], axis=1)
 
     print(data_2)
 
