@@ -22,8 +22,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 #機械学習ライブラリー
 import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import ConvLSTM2D, BatchNormalization, Flatten, Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import ConvLSTM2D, BatchNormalization, Conv2D
 
 #==================================================#
 #                    Variable                      #
@@ -182,7 +182,6 @@ def fill_lack_value(input_df):
     result = input_df
     return result
 
-
 #欠陥値を調べる
 def find_lack_value(input_data):
     return input_data.isnull().sum()
@@ -196,22 +195,22 @@ def scale_features(features):
 
 #モデル作成
 def model(x_train, x_test, y_train, y_test):
-    #モデル構築
+    #モデル定義
     model = Sequential()
-    model.add(ConvLSTM2D(filters=64, kernel_size=(5, 5), padding='same', input_shape=(None, n_seq, n_features, 1), return_sequences=True))
-    model.add(BatchNormalization())
 
-    model.add(ConvLSTM2D(filters=64, kernel_size=(5, 5), padding='same', return_sequences=True))
-    model.add(BatchNormalization())
-    
+    print(train_x.shape, train_y.shape)
 
-    model.add(ConvLSTM2D(filters=64, kernel_size=(5, 5), padding='same', return_sequences=True))
-    model.add(BatchNormalization())
+    #Conv LSTMレイヤーの追加
+    model.add(ConvLSTM2D(filters=64, kernel_size=(1, 3), input_shape=(None, 128, 128, 128)))
 
-    model.add(Flatten())
-    # model.add(Dense(32,activation='relu', input_shape=(None, 1)))
+    #必要に応じてレイヤーを追加する(現在作業中)
 
-    model.compile(optimizer='adam', loss='mse')
+    #出力
+    model.add(Conv2D(filters=1, kernel_size=(1, 1), activation='sigmoid'))
+
+    #モデルのコンパイル
+
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     #モデル訓練
     model.fit(x_train, y_train, epochs=50, batch_size=32, validation_data=(x_test, y_test))
