@@ -114,7 +114,12 @@ def load_csv(input_csv):
     df_season = pd.DataFrame(season_data)
     data_2 = pd.concat([df_added_zero, df_season, data], axis=1)
 
-    print(data_2)
+    print(data_2.head(10))
+    return data_2
+
+
+# 気圧の欠損値を補正
+    
 
 #特徴量を抽出
 def drop_feautures(input_data):
