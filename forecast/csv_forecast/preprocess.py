@@ -119,7 +119,7 @@ def count_lack_value(df):
     return df.isnull().sum()
 
 def save_np_array(np_array, file_name):
-    np.save(f'npz_data/{str(file_name)}', np_array)
+    np.savez(f'npz_data/{str(file_name)}', np_array)
 
 
 #メイン
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     print(data_np.shape)
 
     #npzとして保存
-    save_np_array(data_np, 'test.npz')
+    save_np_array(data_np, 'test')
 
 
 
