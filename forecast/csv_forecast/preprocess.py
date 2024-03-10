@@ -109,6 +109,19 @@ def df2np_array(df):
 def delete_unnecessary_row(df, unnecessary_header_array):
     return df.drop(unnecessary_header_array, axis=1)
 
+def fill_lack_value(df):
+    result = pd.DataFrame()
+    df.fillna(method="ffill", inplace=True)
+    result = df
+    return result
+
+def count_lack_value(df):
+    return df.isnull().sum()
+
+def save_np_array(np_array, file_name):
+    np.save(f'npz_data/{str(file_name)}', np_array)
+
+
 #メイン
 if __name__ == "__main__":
     #CSVを表示
@@ -116,12 +129,29 @@ if __name__ == "__main__":
     data_csv = load_csv('test.csv')
     print(data_csv.head())
 
+    #欠陥値の合計を出力
+    print(count_lack_value(data_csv))
+
+    #欠陥値を修正
+    data_csv = fill_lack_value(data_csv)
+
+    #欠陥値の合計を再度出力
+    print(count_lack_value(data_csv))
+
     #必要のないデータをCSVから削除
     data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
 
     #DataFrameをNumpy配列に変換
     data_np = df2np_array(data_csv)
     print(data_np)
+
+    #Shapeを確認
+    print(data_np.shape)
+
+    #npzとして保存
+    save_np_array(data_np, 'test.npz')
+
+
 
 
 
