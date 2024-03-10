@@ -61,6 +61,21 @@ def format_hour(hour):
         return 0
     else:
         return int(hour) 
+    
+#風力,風速をベクトルに変換
+def wind2vector(df):
+    wind_direction = df.pop('風向')
+    wind_speed =  df.pop('風速')
+
+    #風向をラジアンに変換
+    wind_direction_radian = wind_direction * np.pi / 180
+
+    # 風のXとYを計算
+    df['wind_x'] = wind_speed * np.cos(wind_direction_radian)
+    df['wind_y'] = wind_speed * np.sin(wind_direction_radian)
+
+    return df
+
 
 #CSVを読み込み、修正
 def load_csv(input_csv):
@@ -127,7 +142,11 @@ if __name__ == "__main__":
     #CSVを表示
     pd.options.display.max_columns = 20
     data_csv = load_csv('test.csv')
+
+    #風をベクトルに変換
+    data_csv = wind2vector(data_csv)
     print(data_csv.head())
+
 
     #欠陥値の合計を出力
     print(count_lack_value(data_csv))
