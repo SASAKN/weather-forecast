@@ -6,3 +6,5 @@ test/
 *.pdf.svg
 *.csv
 sample_signate.py
+*.npy
+*.npz
