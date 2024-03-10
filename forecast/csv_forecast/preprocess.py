@@ -158,7 +158,7 @@ if __name__ == "__main__":
     print(count_lack_value(data_csv))
 
     #必要のないデータをCSVから削除
-    data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
+    data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気', '風向', '風速'])
 
     #DataFrameをNumpy配列に変換
     data_np = df2np_array(data_csv)
