@@ -11,22 +11,9 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-# 設定
-n_seq = 5 #シーケンス
-n_features = 8 #特徴量の数
-
-#ファイル名を取得
-def extract_filename(file_path):
-    file_name = os.path.basename(file_path)
-    
-    file_name_without_extension, _ = os.path.splitext(file_name)
-    
-    return file_name_without_extension
-
 #日付を季節に変換
 def date2season(month, day):
     month, day = int(month), int(day)
-    
     #データが範囲内であるかを確認
     if not (1 <= month <= 12 and 1 <= day <= 31):
         return 4 # 不正な日付
@@ -79,12 +66,12 @@ def format_hour(hour):
     else:
         return str(hour) 
 
-#CSVを読み込む
+#CSVを読み込み、修正
 def load_csv(input_csv):
     #CSVを読み込む
     data = pd.read_csv(input_csv, dtype={'column_name': str}, low_memory=False)
 
-    #CSVから日付を0埋め
+    #日付のゼロ埋めや、修正
     added_zero_dates = []
     season_data = []
     for date in data['年月日時'].values.tolist():
@@ -97,7 +84,6 @@ def load_csv(input_csv):
         minute = '00'
 
         #datetimeに変換
-        #エラーの原因がわかった 2/30 2/31などは存在しない
         try: 
             datetime_str = np.datetime64(f'{year}-{month}-{day}T{hour}:00:00')
         except Exception:
@@ -112,13 +98,18 @@ def load_csv(input_csv):
         #季節に変換
         season = date2season(date_parts[1], date_parts[2])
 
-        #データの配列作成
+        #データ配列作成
         added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime': datetime_str})
         season_data.append({'season': season})
 
-    #データを作成、統合
+    #DataFrameを作成
     df_added_zero = pd.DataFrame(added_zero_dates)
     df_season = pd.DataFrame(season_data)
+    
+    #Dataから年月日時の列を削除
+    data.drop(['年月日時'], axis=1)
+
+    #全てのデータを結合
     data_2 = pd.concat([df_added_zero, df_season, data], axis=1)
 
     return data_2
