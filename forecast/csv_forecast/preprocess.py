@@ -7,10 +7,6 @@ import pandas as pd
 #グラフ描画
 import matplotlib.pyplot as plt
 
-#機械学習データの用意
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
-
 #日付を季節に変換
 def date2season(month, day):
     month, day = int(month), int(day)
@@ -62,9 +58,9 @@ def add_zero_to_single_digit(number):
 #24時を0時に変換
 def format_hour(hour):
     if str(hour) == '24':
-        return '00'
+        return 0
     else:
-        return str(hour) 
+        return int(hour) 
 
 #CSVを読み込み、修正
 def load_csv(input_csv):
@@ -75,28 +71,24 @@ def load_csv(input_csv):
     added_zero_dates = []
     season_data = []
     for date in data['年月日時'].values.tolist():
-        #/で分けて0埋め
+        #全て整数に変換
         date_parts = date.split('/')
-        year = int(date_parts[0])
-        month = add_zero_to_single_digit(date_parts[1])
-        day = add_zero_to_single_digit(date_parts[2])
-        hour = format_hour(add_zero_to_single_digit(date_parts[3]))
+        year, month, day, hour = map(int, date_parts[:4])
+
+        #24時を0時
+        hour = format_hour(str(hour))
         minute = '00'
 
         #datetimeに変換
-        try: 
-            datetime_str = np.datetime64(f'{year}-{month}-{day}T{hour}:00:00')
-        except Exception:
+        for day_offset in [0, 1, 2, 3]:
             try:
-                datetime_str = np.datetime64(f'{year}-{month}-{add_zero_to_single_digit(str(int(day) - 1))}T{hour}:00:00')
+                adjusted_day = add_zero_to_single_digit(str(int(day) - day_offset))
+                datetime_str = np.datetime64(f'{year}-{month:02d}-{adjusted_day}T{hour:02d}:00:00')
             except Exception:
-                try:
-                    datetime_str = np.datetime64(f'{year}-{month}-{add_zero_to_single_digit(str(int(day) - 2))}T{hour}:00:00')
-                except Exception:
-                    datetime_str = np.datetime64(f'{year}-{month}-{add_zero_to_single_digit(str(int(day) - 3))}T{hour}:00:00')
+                pass
 
         #季節に変換
-        season = date2season(date_parts[1], date_parts[2])
+        season = date2season(month, day)
 
         #データ配列作成
         added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime': datetime_str})
@@ -105,67 +97,33 @@ def load_csv(input_csv):
     #DataFrameを作成
     df_added_zero = pd.DataFrame(added_zero_dates)
     df_season = pd.DataFrame(season_data)
-    
-    #Dataから年月日時の列を削除
-    data.drop(['年月日時'], axis=1)
 
     #全てのデータを結合
     data_2 = pd.concat([df_added_zero, df_season, data], axis=1)
 
     return data_2
 
-#特徴量を抽出
-def drop_features(input_data):
-    #特徴量を抽出したデータフレームを作成
-    target = input_data['気圧_海面'] #海面気圧(目的変数)
-    features_1 = input_data['気圧_現地'] #現地気圧(説明変数)
-    features_2 = input_data['気温'] #気温(説明変数)
-    features_3 = input_data['風速'] #風速(説明変数)
-    features_4 = input_data['風向'] #風向(説明変数)
-    features_5 = input_data['湿度'] #湿度(説明変数)
-    features_6 = input_data['datetime'] #時刻データ(説明変数)
-    features_7 = input_data['season']
-    headers = ['現地気圧', '海面気圧', '気温', '風速', '風向', '湿度', 'datetime', 'season']
-    tmp_df = pd.DataFrame(headers)
-    tmp_df = pd.concat([target, features_1, features_2, features_3, features_4, features_5, features_6, features_7], axis=1)
-    features = pd.DataFrame(tmp_df)
-    return features
+def df2np_array(df):
+    return df.to_numpy()
 
-#欠陥値を埋める
-def fill_lack_value(input_df):
-    #欠陥値の補完
-    result = pd.DataFrame()
-    input_df.fillna(method="ffill", inplace=True)
-    result = input_df
-    return result
-
-#欠陥値を調べる
-def find_lack_value(input_data):
-    return input_data.isnull().sum()
-
-#データの正規化
-def scale_features(features):
-    features_array = features.drop(['datetime'], axis=1).to_numpy()
-    scaler = MinMaxScaler()
-    features_scaled = scaler.fit_transform(features_array)
-    return features_scaled
+def delete_unnecessary_row(df, unnecessary_header_array):
+    return df.drop(unnecessary_header_array, axis=1)
 
 #メイン
 if __name__ == "__main__":
-    #特徴量を抽出
-    features = drop_features(load_csv('test.csv'))
+    #CSVを表示
+    pd.options.display.max_columns = 20
+    data_csv = load_csv('test.csv')
+    print(data_csv.head())
 
-    #欠陥値を表示
-    print(find_lack_value(features))
+    #必要のないデータをCSVから削除
+    data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
 
-    #欠陥値を補完
-    fill_lack_value(features)
+    #DataFrameをNumpy配列に変換
+    data_np = df2np_array(data_csv)
+    print(data_np)
 
-    #データの正規化　ー　ただし日時は、正規化を行わない
-    scaled_features = scale_features(features)
 
-    #学習データと予測データに分割 
-    train_x, test_x, train_y, test_y = train_test_split(scaled_features, features['気圧_海面'], train_size=0.8)
 
 
 
