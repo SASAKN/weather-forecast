@@ -4,8 +4,17 @@ import sys
 import numpy as np
 import pandas as pd
 
+#Sklearn
+from sklearn.preprocessing import MinMaxScaler
+
 #グラフ描画
 import matplotlib.pyplot as plt
+
+def str2float(str):
+    try:
+        return float(str)
+    except:
+        return 0.0
 
 #日付を季節に変換
 def date2season(month, day):
@@ -92,7 +101,7 @@ def load_csv(input_csv):
 
         #24時を0時
         hour = format_hour(str(hour))
-        minute = '00'
+        minute = 0
 
         #datetimeに変換
         for day_offset in [0, 1, 2, 3]:
@@ -103,7 +112,7 @@ def load_csv(input_csv):
                 pass
 
         #季節に変換
-        season = date2season(month, day)
+        season = str2float(str(date2season(month, day)))
 
         #データ配列作成
         added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime': datetime_str})
@@ -136,9 +145,17 @@ def count_lack_value(df):
 def save_np_array(np_array, file_name):
     np.savez_compressed(f'npz_data/{str(file_name)}', np_array)
 
+def scale_features(ndarray):
+    scaler = MinMaxScaler()
+    scaled_features = scaler.fit_transform(ndarray)
+    return scaled_features
+
 
 #メイン
 if __name__ == "__main__":
+    #CSVのデータ型を見る
+    print(pd.read_csv('test.csv').dtypes)
+
     #CSVを表示
     pd.options.display.max_columns = 20
     data_csv = load_csv('test.csv')
@@ -147,22 +164,29 @@ if __name__ == "__main__":
     data_csv = wind2vector(data_csv)
     print(data_csv.head())
 
+    #必要のないデータをCSVから削除
+    data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
+
+    #CSVのデータ型を見る
+    print(data_csv.dtypes)
 
     #欠陥値の合計を出力
     print(count_lack_value(data_csv))
 
     #欠陥値を修正
-    data_csv = fill_lack_value(data_csv)
+    for i in [0, 1]:
+        data_csv = fill_lack_value(data_csv)
 
     #欠陥値の合計を再度出力
     print(count_lack_value(data_csv))
 
-    #必要のないデータをCSVから削除
-    data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気', '風向', '風速'])
-
     #DataFrameをNumpy配列に変換
+    np.set_printoptions(threshold=np.inf)
     data_np = df2np_array(data_csv)
     print(data_np)
+
+    #データの正規化
+    data_np = scale_features(data_np)
 
     #Shapeを確認
     print(data_np.shape)
