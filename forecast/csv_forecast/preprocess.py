@@ -111,8 +111,7 @@ def load_csv(input_csv):
                 pass
         
         #Unix Time Stampに変換
-        unix_time_stamp = datetime_str.astype('datetime64[s]').astype(int)
-            
+        unix_time_stamp = datetime_str.astype('datetime64[s]').astype(int)      
 
         #季節に変換
         season = str2float(str(date2season(month, day)))
