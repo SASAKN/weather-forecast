@@ -110,12 +110,16 @@ def load_csv(input_csv):
                 datetime_str = np.datetime64(f'{year}-{month:02d}-{adjusted_day}T{hour:02d}:00:00')
             except Exception:
                 pass
+        
+        #Unix Time Stampに変換
+        unix_time_stamp = datetime_str.astype('datetime64[s]').astype(int)
+            
 
         #季節に変換
         season = str2float(str(date2season(month, day)))
 
         #データ配列作成
-        added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'datetime': datetime_str})
+        added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'unix_time_stamp': unix_time_stamp})
         season_data.append({'season': season})
 
     #DataFrameを作成
