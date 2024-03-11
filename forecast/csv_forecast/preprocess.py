@@ -195,16 +195,3 @@ if __name__ == "__main__":
 
     #npzとして保存
     save_np_array(data_np, 'test')
-
-
-
-
-
-
-
-
-
-
-
-
-    
