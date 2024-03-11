@@ -16,6 +16,13 @@ def str2float(str):
     except:
         return 0.0
 
+def extract_filename(file_path):
+    file_name = os.path.basename(file_path)
+    
+    file_name_without_extension, _ = os.path.splitext(file_name)
+    
+    return file_name_without_extension
+
 #日付を季節に変換
 def date2season(month, day):
     month, day = int(month), int(day)
@@ -91,9 +98,10 @@ def load_csv(input_csv):
     #CSVを読み込む
     data = pd.read_csv(input_csv, dtype={'column_name': str}, low_memory=False)
 
-    #日付のゼロ埋めや、修正
-    added_zero_dates = []
-    season_data = []
+    #日付をUnix時間にして、季節と地点緯度の追加
+    added_zero_dates = [] #UNIX時間
+    season_data = [] #季節
+    block_location = [] #地点緯度
     for date in data['年月日時'].values.tolist():
         #全て整数に変換
         date_parts = date.split('/')
