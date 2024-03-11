@@ -101,7 +101,6 @@ def load_csv(input_csv):
 
         #24時を0時
         hour = format_hour(str(hour))
-        minute = 0
 
         #datetimeに変換
         for day_offset in [0, 1, 2, 3]:
@@ -119,7 +118,7 @@ def load_csv(input_csv):
         season = str2float(str(date2season(month, day)))
 
         #データ配列作成
-        added_zero_dates.append({'year': year, 'month': month, 'day': day, 'hour': hour, 'minute': minute, 'unix_time_stamp': unix_time_stamp})
+        added_zero_dates.append({'unix_time_stamp': unix_time_stamp})
         season_data.append({'season': season})
 
     #DataFrameを作成
