@@ -101,7 +101,7 @@ def load_csv(input_csv):
     #日付をUnix時間にして、季節と地点緯度の追加
     added_zero_dates = [] #UNIX時間
     season_data = [] #季節
-    block_location = [] #地点緯度
+    block_location = [] #地点緯度経度
     for date in data['年月日時'].values.tolist():
         #全て整数に変換
         date_parts = date.split('/')

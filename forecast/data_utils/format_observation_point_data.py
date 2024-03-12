@@ -16,12 +16,16 @@ out_array = [
 
 # ブロックコードのクラス
 class block_codes:
-    def __init__(self, prec, block, block_code):
+    def __init__(self, prec, block, block_code, latitude_degrees, latitude_minutes, longitude_degrees, longitude_minutes):
         self.prec = prec
         self.block = block
         self.block_code = block_code
+        self.latitude_degrees = latitude_degrees
+        self.latitude_minutes = latitude_minutes
+        self.longitude_degrees = longitude_degrees
+        self.longitude_minutes = longitude_minutes
     def get_array(self):
-        return [self.prec, self.block_code, self.block]
+        return [self.prec, self.block_code, self.block, self.latitude_degrees, self.latitude_minutes, self.longitude_degrees, self.longitude_minutes]
 
 # クラスの配列
 class_array = []
@@ -45,6 +49,15 @@ def column_to_array(input_file, column_index):
                 result_array.append(row[column_index])
 
     return result_array
+
+#CSVから緯度経度を抜き出す
+def csv2location(input_csv):
+    csv = pd.read_csv(input_csv)
+    latitude_degrees = csv['緯度(度)'].to_list()
+    latitude_minutes = csv['緯度(分)'].to_list()
+    longitude_degrees = csv['経度(度)'].to_list()
+    longitude_minutes = csv['経度(分)'].to_list()
+    return longitude_degrees, longitude_minutes, latitude_degrees, latitude_minutes
 
 #Tagをコードに変換
 def tag2code(tag):
@@ -122,7 +135,7 @@ def combine_columns(input_file, output_file):
 
         # ヘッダーを書き込む
         header = next(reader)
-        new_header = ["都道府県振興局番号", header[3], header[7], header[8], header[9], header[10]]
+        new_header = ["都道府県振興局番号", header[3], header[7], header[8], header[9], header[10]] #緯度経度データを含む
         writer.writerow(new_header)
 
         # 指定された列を結合して新しい行を書き込む
@@ -139,8 +152,12 @@ def get_observation_points():
         #処理中の都道府県を表示
         print(f'[ PROCESSING ] 処理中の都道府県振興局 : {prec_codes[index]}')
 
+        #地点の緯度、経度を求める
+        latitude_1_array, latitude_2_array, longitude_1_array, longitude_2_array = csv2location('filtered.csv')
+
         #地域の配列を作成
         block_name = prec2block(prec_codes[index], 'filtered.csv')
+
         for block in block_name:
 
             #Indexを作成
@@ -173,7 +190,7 @@ def get_observation_points():
                     print(f'[ INFO ]Block None {block_name[index_2]}')
                 else:
                     #タグから地域コードを抜き出し、配列にクラスごと入れる
-                    class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0])))
+                    class_array.append(block_codes(prec_codes[index], block_name[index_2], tag2code(tmp_area[0]), latitude_1_array[index_2], latitude_2_array[index_2], longitude_1_array[index_2], longitude_2_array[index_2]))
 
 #CSV書き込み
 def two_dimension_array2csv(two_dimensional_data, output_csv):
@@ -185,8 +202,50 @@ def two_dimension_array2csv(two_dimensional_data, output_csv):
         for row in two_dimensional_data:
             writer.writerow(row)
 
-# 使用例
+# Main_1 コメントアウト - 必要なものだけを抜き出し、正しい地域コードに変換
         
+# if __name__ == "__main__":
+#     #CSVの名前
+#     input_file_path = 'ame_master.csv'
+#     tmp_file_path = 'tmp_filtered.csv'
+#     tmp2_file_path = 'tmp_combine.csv'
+#     tmp3_file_path = 'filtered.csv'
+#     output_file_path = 'amedas.csv'
+
+#     #CSVから気圧を測っている地点を抜き出し
+#     filter_csv(input_file_path, tmp_file_path)
+#     #必要な情報のみをまとめ
+#     combine_columns(tmp_file_path, tmp2_file_path)
+#     #重複したものを削除
+#     delete_duplicates(tmp2_file_path ,tmp3_file_path)
+
+#     #都道府県コードをまとめる
+#     prec_codes = list(set(column_to_array(tmp3_file_path, 0)))
+
+#     #地域コードをJMAからスクレイピング
+#     get_observation_points()
+
+#     #ヘッダーを先に書き込む
+#     out_array.append(["都道府県振興局番号", "地域コード", "地域名"])
+
+#     #全てのClassを配列に変換
+#     for block_class in class_array:
+#         #Indexを作成
+#         index = class_array.index(block_class)
+
+#         #2次元配列に変換
+#         out_array.append(class_array[index].get_array())
+    
+#     #2次元配列をCSVに変換
+#     two_dimension_array2csv(out_array, output_file_path)
+
+#     #テンポラリーなファイルの削除
+#     os.remove(tmp2_file_path)
+#     os.remove(tmp3_file_path)
+#     os.remove(tmp_file_path)
+            
+    
+            
 if __name__ == "__main__":
     #CSVの名前
     input_file_path = 'ame_master.csv'
@@ -197,8 +256,10 @@ if __name__ == "__main__":
 
     #CSVから気圧を測っている地点を抜き出し
     filter_csv(input_file_path, tmp_file_path)
+
     #必要な情報のみをまとめ
     combine_columns(tmp_file_path, tmp2_file_path)
+    
     #重複したものを削除
     delete_duplicates(tmp2_file_path ,tmp3_file_path)
 
@@ -209,7 +270,7 @@ if __name__ == "__main__":
     get_observation_points()
 
     #ヘッダーを先に書き込む
-    out_array.append(["都道府県振興局番号", "地域コード", "地域名"])
+    out_array.append(["都道府県振興局番号", "地域コード", "地域名", "地点緯度", "地点経度"])
 
     #全てのClassを配列に変換
     for block_class in class_array:
@@ -226,5 +287,6 @@ if __name__ == "__main__":
     os.remove(tmp2_file_path)
     os.remove(tmp3_file_path)
     os.remove(tmp_file_path)
+
 
     
