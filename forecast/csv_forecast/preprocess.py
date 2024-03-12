@@ -191,7 +191,7 @@ if __name__ == "__main__":
     print(count_lack_value(data_csv))
 
     #DataFrameをNumpy配列に変換
-    np.set_printoptions(threshold=np.inf)
+    # np.set_printoptions(threshold=np.inf)　# 全てを表示する設定
     data_np = df2np_array(data_csv)
     print(data_np)
 
