@@ -200,50 +200,7 @@ def two_dimension_array2csv(two_dimensional_data, output_csv):
 
         #2次元配列をCSVの行にする
         for row in two_dimensional_data:
-            writer.writerow(row)
-
-# Main_1 コメントアウト - 必要なものだけを抜き出し、正しい地域コードに変換
-        
-# if __name__ == "__main__":
-#     #CSVの名前
-#     input_file_path = 'ame_master.csv'
-#     tmp_file_path = 'tmp_filtered.csv'
-#     tmp2_file_path = 'tmp_combine.csv'
-#     tmp3_file_path = 'filtered.csv'
-#     output_file_path = 'amedas.csv'
-
-#     #CSVから気圧を測っている地点を抜き出し
-#     filter_csv(input_file_path, tmp_file_path)
-#     #必要な情報のみをまとめ
-#     combine_columns(tmp_file_path, tmp2_file_path)
-#     #重複したものを削除
-#     delete_duplicates(tmp2_file_path ,tmp3_file_path)
-
-#     #都道府県コードをまとめる
-#     prec_codes = list(set(column_to_array(tmp3_file_path, 0)))
-
-#     #地域コードをJMAからスクレイピング
-#     get_observation_points()
-
-#     #ヘッダーを先に書き込む
-#     out_array.append(["都道府県振興局番号", "地域コード", "地域名"])
-
-#     #全てのClassを配列に変換
-#     for block_class in class_array:
-#         #Indexを作成
-#         index = class_array.index(block_class)
-
-#         #2次元配列に変換
-#         out_array.append(class_array[index].get_array())
-    
-#     #2次元配列をCSVに変換
-#     two_dimension_array2csv(out_array, output_file_path)
-
-#     #テンポラリーなファイルの削除
-#     os.remove(tmp2_file_path)
-#     os.remove(tmp3_file_path)
-#     os.remove(tmp_file_path)
-            
+            writer.writerow(row)     
     
             
 if __name__ == "__main__":
