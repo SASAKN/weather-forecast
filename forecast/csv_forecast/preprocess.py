@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
         #CSVのデータ型を見る
         print(pd.read_csv(str(target_csv)).dtypes)
-        print('処理中です.')
+        print(f'{target_csv}を処理中です.')
 
         #CSVを処理
         data_csv = load_csv(str(target_csv))
