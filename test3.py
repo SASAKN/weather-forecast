@@ -13,7 +13,7 @@ def generate_random_np_array(shape):
     random_np_array = np.random.random(shape)
     return random_np_array
 
-def save_np_arrays_to_npz(array1, array2, array3, filename):
+def save_np_arrays_to_npz(filename, **arrays):
     """
     3つのNP配列をNPZ形式で保存する関数
     
@@ -26,7 +26,7 @@ def save_np_arrays_to_npz(array1, array2, array3, filename):
     返り値:
     なし
     """
-    np.savez(filename, **{"47110" : array1, "47220" : array2, "47330" : array3})
+    np.savez(filename, **arrays)
 
 def load_np_arrays_from_npz(filename):
     """
@@ -44,11 +44,12 @@ def load_np_arrays_from_npz(filename):
     return arrays   
 
 if __name__ == "__main__":
-    # array_1 = generate_random_np_array((3, 3))
-    # array_2 = generate_random_np_array((3, 3))
-    # array_3 = generate_random_np_array((3, 3))
-    # save_np_arrays_to_npz(array_1, array_2, array_3, 'test.npz')
+    array_1 = generate_random_np_array((3, 3, 3))
+    array_2 = generate_random_np_array((3, 3, 3))
+    array_3 = generate_random_np_array((3, 3, 3))
+    keyword_1 = 47110
+    save_np_arrays_to_npz('test.npz', **{str(keyword_1) : array_1, })
     loaded_arrays = load_np_arrays_from_npz("test.npz")
-    print(loaded_arrays['47220'])
+    print(loaded_arrays['47110'])
 
 
