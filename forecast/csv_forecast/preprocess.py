@@ -6,7 +6,6 @@ import pandas as pd
 
 #Sklearn
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
 
 #グラフ描画
 import matplotlib.pyplot as plt
@@ -182,16 +181,19 @@ if __name__ == "__main__":
     #対象となるCSVを調べる
     target_csv_files = find_target_csv_files()
 
+    #辞書の初期化
+    files_dict = {}
+
     for target_csv in target_csv_files:
 
         print(f'[ PROCESSING ]現在進行中のファイル: {target_csv}')
 
         #CSVのデータ型を見る
-        print(pd.read_csv(str(target_csv)).dtypes)
+        print(pd.read_csv(target_csv).dtypes)
         print(f'{target_csv}を処理中です.')
 
         #CSVを処理
-        data_csv = load_csv(str(target_csv))
+        data_csv = load_csv(target_csv)
         print('.')
 
         #風をベクトルに変換
@@ -233,5 +235,9 @@ if __name__ == "__main__":
         print(data_np.shape)
         print('\n')
 
-    #npzとして保存
-    save_np_array('test', **{'test' : data_np})
+        #辞書に追加
+        files_dict[str(extract_filename(target_csv))] = data_np
+
+
+    # train.npzとして保存
+    save_np_array('train', files_dict)
