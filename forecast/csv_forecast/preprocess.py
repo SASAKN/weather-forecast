@@ -1,11 +1,12 @@
 #データ処理
 import os
-import sys
+import glob
 import numpy as np
 import pandas as pd
 
 #Sklearn
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
 #グラフ描画
 import matplotlib.pyplot as plt
@@ -152,54 +153,85 @@ def fill_lack_value(df):
 def count_lack_value(df):
     return df.isnull().sum()
 
-def save_np_array(np_array, file_name):
-    np.savez_compressed(f'npz_data/{str(file_name)}', np_array)
+def save_np_array(file_name, **arrays):
+    """
+    引数: file_name, **arrays
+    **arrays = キーワードと配列の対応させた辞書データ
+    Example ) **{'47110' : array_1} #必ず、地点番号と対応させること
+    """
+
+    np.savez_compressed(f'npz_data/{str(file_name)}', **arrays)
 
 def scale_features(ndarray):
     scaler = MinMaxScaler()
     scaled_features = scaler.fit_transform(ndarray)
     return scaled_features
 
+def find_target_csv_files():
+    csvs = glob.glob("../data_utils/*.csv")
+
+    #地点などのファイルを除外
+    csvs.remove('../data_utils/ame_master.csv')
+    csvs.remove('../data_utils/amedas.csv')
+    csvs.remove('../data_utils/kousou_master.csv')
+
+    return csvs
 
 #メイン
 if __name__ == "__main__":
-    #CSVのデータ型を見る
-    print(pd.read_csv('test.csv').dtypes)
+    #対象となるCSVを調べる
+    target_csv_files = find_target_csv_files()
 
-    #CSVを表示
-    pd.options.display.max_columns = 20
-    data_csv = load_csv('test.csv')
+    for target_csv in target_csv_files:
 
-    #風をベクトルに変換
-    data_csv = wind2vector(data_csv)
-    print(data_csv.head())
+        print(f'[ PROCESSING ]現在進行中のファイル: {target_csv}')
 
-    #必要のないデータをCSVから削除
-    data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
+        #CSVのデータ型を見る
+        print(pd.read_csv(str(target_csv)).dtypes)
+        print('処理中です.')
 
-    #CSVのデータ型を見る
-    print(data_csv.dtypes)
+        #CSVを処理
+        data_csv = load_csv(str(target_csv))
+        print('.')
 
-    #欠陥値の合計を出力
-    print(count_lack_value(data_csv))
+        #風をベクトルに変換
+        data_csv = wind2vector(data_csv)
+        print('.')
 
-    #欠陥値を修正
-    for i in [0, 1]:
-        data_csv = fill_lack_value(data_csv)
+        #CSVを表示
+        pd.options.display.max_columns = 20
+        print(data_csv.head())
 
-    #欠陥値の合計を再度出力
-    print(count_lack_value(data_csv))
+        #必要のないデータをCSVから削除
+        data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
+        print('.')
 
-    #DataFrameをNumpy配列に変換
-    # np.set_printoptions(threshold=np.inf)　# 全てを表示する設定
-    data_np = df2np_array(data_csv)
-    print(data_np)
+        #CSVのデータ型を見る
+        print(data_csv.dtypes)
 
-    #データの正規化
-    data_np = scale_features(data_np)
+        #欠陥値の合計を出力
+        print(count_lack_value(data_csv))
 
-    #Shapeを確認
-    print(data_np.shape)
+        #欠陥値を修正
+        for i in [0, 1]:
+            data_csv = fill_lack_value(data_csv)
+        print('.')
+
+        #欠陥値の合計を再度出力
+        print(count_lack_value(data_csv))
+
+        #DataFrameをNumpy配列に変換
+        data_np = df2np_array(data_csv)
+        print(data_np)
+        print('.')
+
+        #データの正規化
+        data_np = scale_features(data_np)
+        print('.')
+
+        #Shapeを確認
+        print(data_np.shape)
+        print('\n')
 
     #npzとして保存
-    save_np_array(data_np, 'test')
+    save_np_array('test', **{'test' : data_np})
