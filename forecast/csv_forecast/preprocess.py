@@ -190,15 +190,12 @@ if __name__ == "__main__":
 
         #CSVのデータ型を見る
         print(pd.read_csv(target_csv).dtypes)
-        print(f'{target_csv}を処理中です.')
 
         #CSVを処理
         data_csv = load_csv(target_csv)
-        print('.')
 
         #風をベクトルに変換
         data_csv = wind2vector(data_csv)
-        print('.')
 
         #CSVを表示
         pd.options.display.max_columns = 20
@@ -206,7 +203,6 @@ if __name__ == "__main__":
 
         #必要のないデータをCSVから削除
         data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
-        print('.')
 
         #CSVのデータ型を見る
         print(data_csv.dtypes)
@@ -217,7 +213,6 @@ if __name__ == "__main__":
         #欠陥値を修正
         for i in [0, 1]:
             data_csv = fill_lack_value(data_csv)
-        print('.')
 
         #欠陥値の合計を再度出力
         print(count_lack_value(data_csv))
@@ -225,15 +220,12 @@ if __name__ == "__main__":
         #DataFrameをNumpy配列に変換
         data_np = df2np_array(data_csv)
         print(data_np)
-        print('.')
 
         #データの正規化
         data_np = scale_features(data_np)
-        print('.')
 
         #Shapeを確認
         print(data_np.shape)
-        print('\n')
 
         #辞書に追加
         files_dict[str(extract_filename(target_csv))] = data_np
