@@ -1,8 +1,3 @@
-#ViewBoxに変換する関数 date = 1 から 31
-def date2viewbox(date):
-    
-
-
 #ViewBoxを変更する関数
 def change_viewbox(svg_content, min_x, min_y, x, y):
 
