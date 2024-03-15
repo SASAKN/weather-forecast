@@ -132,8 +132,30 @@ def load_csv(input_csv):
     df_added_zero = pd.DataFrame(added_zero_dates)
     df_season = pd.DataFrame(season_data)
 
+    #雲量をFloatに変換
+    new_cloud_array = [] #雲量をFloatにしたもの
+
+    for cloud in data['雲量'].values.tolist():
+
+        # +と-の処理
+        if str(cloud) in "+":
+            new_cloud = float(str2float(cloud) + 0.5)
+        elif str(cloud) in "-":
+            new_cloud = float(str2float(cloud) - 0.5)
+        elif str(cloud) == None:
+            new_cloud = str2float('0')
+        else:
+            new_cloud = str2float(str(cloud))
+
+        #配列に追加
+        new_cloud_array.append({"Cloud" : new_cloud})
+    
+    #DataFrameを作成
+    df_cloud = pd.DataFrame(new_cloud_array)
+
+
     #全てのデータを結合
-    data_2 = pd.concat([df_added_zero, df_season, data], axis=1)
+    data_2 = pd.concat([df_added_zero, df_season,df_cloud, data], axis=1)
 
     return data_2
 
@@ -143,11 +165,16 @@ def df2np_array(df):
 def delete_unnecessary_row(df, unnecessary_header_array):
     return df.drop(unnecessary_header_array, axis=1)
 
-def fill_lack_value(df):
+def fill_lack_value_df(df):
     result = pd.DataFrame()
     df.fillna(method="ffill", inplace=True)
     result = df
     return result
+
+def fill_lack_value_np(np_array):
+    masked_array = np.ma.masked_invalid(np_array)
+    fixed = np.ma.fix_invalid(masked_array, fill_value=np.nan).filled()
+    return fixed
 
 def count_lack_value(df):
     return df.isnull().sum()
@@ -159,7 +186,7 @@ def save_np_array(file_name, **arrays):
     Example ) **{'47110' : array_1} #必ず、地点番号と対応させること
     """
 
-    np.savez_compressed(f'npz_data/{str(file_name)}', **arrays)
+    np.savez_compressed(f'npz_data/{str(file_name)}', arrays)
 
 def scale_features(ndarray):
     scaler = MinMaxScaler()
@@ -202,7 +229,7 @@ if __name__ == "__main__":
         print(data_csv.head())
 
         #必要のないデータをCSVから削除
-        data_csv = delete_unnecessary_row(data_csv, ['年月日時', '降水量', '降雪', '雲量', '天気'])
+        data_csv = delete_unnecessary_row(data_csv, ['年月日時', '雲量', '降雪'])
 
         #CSVのデータ型を見る
         print(data_csv.dtypes)
@@ -211,8 +238,8 @@ if __name__ == "__main__":
         print(count_lack_value(data_csv))
 
         #欠陥値を修正
-        for i in [0, 1]:
-            data_csv = fill_lack_value(data_csv)
+        for i in [0, 1, 2]:
+            data_csv = fill_lack_value_df(data_csv)
 
         #欠陥値の合計を再度出力
         print(count_lack_value(data_csv))
@@ -220,6 +247,10 @@ if __name__ == "__main__":
         #DataFrameをNumpy配列に変換
         data_np = df2np_array(data_csv)
         print(data_np)
+
+        #Numpy配列の欠陥値を修正
+        data_np = fill_lack_value_np(data_np)
+        print(f'欠陥値: {np.sum(np.isnan(data_np), axis=0)}')
 
         #データの正規化
         data_np = scale_features(data_np)
@@ -232,4 +263,4 @@ if __name__ == "__main__":
 
 
     # train.npzとして保存
-    save_np_array('train', files_dict)
+    save_np_array('weather_data', **files_dict)
