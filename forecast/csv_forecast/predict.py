@@ -1,8 +1,14 @@
+#汎用
 import os
 import glob
 import numpy as np
+
+#機械学習
 from keras.models import Sequential
 from keras.layers import LSTM
+
+#変数
+region_codes = []
 
 def extract_filename(file_path):
     file_name = os.path.basename(file_path)
@@ -34,11 +40,13 @@ def build_model():
 
 if __name__ == "__main__":
     csv_files = find_target_csv_files()
-    npz_arrays = load_np_arrays_from_npz('npz_data/weatther_data.npz')
-    #地点ごとに行う
+
+    #地域コードの配列を作成
     for tmp in csv_files:
-        block_code = extract_filename(tmp)
-        array = npz_arrays[f'{block_code}']
-        
+        region_codes.append(extract_filename(tmp))
+    
+    
+
+
 
 
