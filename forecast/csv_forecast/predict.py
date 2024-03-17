@@ -9,6 +9,7 @@ from keras.layers import LSTM
 
 #変数
 region_codes = []
+region_data = []
 
 def extract_filename(file_path):
     file_name = os.path.basename(file_path)
@@ -28,22 +29,31 @@ def find_target_csv_files():
     return csvs
 
 def load_np_arrays_from_npz(npz_file):
-    return np.load(npz_file)
+    return np.load(npz_file, allow_pickle=True)
 
 def find_target_array_from_file(arrays, keyword):
     return arrays[str(keyword)]
 
-def build_model():
-    #Modelを作成
-    model = Sequential()
-    model.add(LSTM(64, input_shape=(64, 64, 64)))
-
 if __name__ == "__main__":
+    #ファイルの読み込み
     csv_files = find_target_csv_files()
+    npz_file = load_np_arrays_from_npz('./npz_data/weather_data.npz')
 
     #地域コードの配列を作成
     for tmp in csv_files:
-        region_codes.append(extract_filename(tmp))
+        region_codes.append(str(extract_filename(tmp)))
+
+    print(region_codes)
+
+    print(npz_file)
+
+
+    
+    
+
+
+
+
     
     
 
