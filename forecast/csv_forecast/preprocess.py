@@ -268,4 +268,4 @@ if __name__ == "__main__":
         files_dict[f'arr_{str(extract_filename(target_csv))}'] = data_np
 
     # train.npzとして保存
-    save_np_array('test', files_dict)
+    save_np_array('weather_data', files_dict)
