@@ -179,14 +179,14 @@ def fill_lack_value_np(np_array):
 def count_lack_value(df):
     return df.isnull().sum()
 
-def save_np_array(file_name, **arrays):
+def save_np_array(file_name, arrays):
     """
     引数: file_name, **arrays
     **arrays = キーワードと配列の対応させた辞書データ
     Example ) **{'47110' : array_1} #必ず、地点番号と対応させること
     """
 
-    np.savez_compressed(f'npz_data/{str(file_name)}', arrays)
+    np.savez_compressed(f'npz_data/{str(file_name)}', **arrays)
 
 def scale_features(ndarray):
     scaler = MinMaxScaler()
@@ -207,6 +207,12 @@ def find_target_csv_files():
 if __name__ == "__main__":
     #対象となるCSVを調べる
     target_csv_files = find_target_csv_files()
+
+    #地域の一覧の配列を作成
+    block_array = []
+    for target_csv in target_csv_files:
+        block_array.append(extract_filename(target_csv))
+    save_np_array('block_list', {'block' : np.array(block_array)})
 
     #辞書の初期化
     files_dict = {}
@@ -259,8 +265,7 @@ if __name__ == "__main__":
         print(data_np.shape)
 
         #辞書に追加
-        files_dict[str(extract_filename(target_csv))] = data_np
-
+        files_dict[f'arr_{str(extract_filename(target_csv))}'] = data_np
 
     # train.npzとして保存
-    save_np_array('weather_data', **files_dict)
+    save_np_array('test', files_dict)
