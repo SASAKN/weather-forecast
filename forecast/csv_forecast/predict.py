@@ -36,12 +36,8 @@ def find_target_array_from_file(arrays, keyword):
 
 if __name__ == "__main__":
     #ファイルの読み込み
-    csv_files = find_target_csv_files()
+    region_codes = (load_np_arrays_from_npz('./npz_data/block_list.npz'))['block'].tolist()
     npz_file = load_np_arrays_from_npz('./npz_data/weather_data.npz')
-
-    #地域コードの配列を作成
-    for tmp in csv_files:
-        region_codes.append(str(extract_filename(tmp)))
 
     print(region_codes)
 
