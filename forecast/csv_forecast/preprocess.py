@@ -98,6 +98,12 @@ def load_csv(input_csv):
     #CSVを読み込む
     data = pd.read_csv(input_csv, dtype={'column_name': str}, low_memory=False)
 
+    #CSVの行を削除する
+    data = data.drop(data.index[215833:])
+
+    #重複したものを削除
+    data = data.drop_duplicates()
+
     #日付をUnix時間にして、季節と地点緯度の追加
     added_zero_dates = [] #UNIX時間
     season_data = [] #季節
