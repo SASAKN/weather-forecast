@@ -155,7 +155,7 @@ def load_csv(input_csv):
 
 
     #全てのデータを結合
-    data_2 = pd.concat([df_added_zero, df_season,df_cloud, data], axis=1)
+    data_2 = pd.concat([df_added_zero, df_season, df_cloud, data], axis=1)
 
     return data_2
 
@@ -257,9 +257,6 @@ if __name__ == "__main__":
         #Numpy配列の欠陥値を修正
         data_np = fill_lack_value_np(data_np)
         print(f'欠陥値: {np.sum(np.isnan(data_np), axis=0)}')
-
-        #データの正規化
-        data_np = scale_features(data_np)
 
         #Shapeを確認
         print(data_np.shape)

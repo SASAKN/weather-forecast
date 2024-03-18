@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import json
 from tqdm import tqdm
+import csv
 
 #変数
 region_codes = []
@@ -43,10 +44,24 @@ def load_np_arrays_from_npz(npz_file):
 def find_target_array_from_file(arrays, keyword):
     return arrays[str(keyword)]
 
-def process_array(array_key):
-    array = npz_file[f'{array_key}']
-    unique_array = np.unique(array, axis=0)
-    return unique_array.tolist()
+def write_3d_array_to_csv(filename, data):
+    """
+    3次元配列をCSVファイルに書き込む関数。
+
+    Parameters:
+    - filename: 出力するCSVファイルのパス
+    - data: CSVに書き込むデータを含む3次元リスト
+
+    Returns:
+    - None
+    """
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        for matrix in data:
+            for row in matrix:
+                writer.writerow(row)
+            # 3次元配列の各行の終わりに改行を追加
+            csvfile.write("\n")
 
 if __name__ == "__main__":
     #メッセージを表示
@@ -68,14 +83,15 @@ if __name__ == "__main__":
     np.set_printoptions(suppress=True)
 
     #UNIX時間の重複を消して、3次元配列に変換
-    for array_key in tqdm(list(npz_file.keys()), desc="Processing ...", miniters=1000):
-        array = npz_file[f'{array_key}'].tolist()
-        unique_array = list(set(map(tuple, array)))
-        all_array.append(unique_array)
+    for array_key in tqdm(list(npz_file.keys())[150:], desc="Processing ...", miniters=1000):
+        array = npz_file[f'{array_key}']
+        unique_array = np.unique(array, axis=1)
+        all_array.append(unique_array.tolist())
 
     #Numpy配列に変換し、保存。
+    write_3d_array_to_csv('tmp.csv', all_array)
     save_array = np.array(all_array)
-    save_np_array('dataset', {'tmp' : save_array})
+    save_np_array('dataset', {'dataset_1' : save_array})
 
     #メッセージを表示
     print(f'Finished : STEP1 !')
