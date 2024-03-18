@@ -43,9 +43,16 @@ def load_np_arrays_from_npz(npz_file):
 def find_target_array_from_file(arrays, keyword):
     return arrays[str(keyword)]
 
+def process_array(array_key):
+    array = npz_file[f'{array_key}']
+    unique_array = np.unique(array, axis=0)
+    return unique_array.tolist()
+
 if __name__ == "__main__":
     #メッセージを表示
-    print(f'Weather Predictor Alpha v0.1')
+    print(f'Weather DataSet Creator Alpha v0.1')
+
+    #STEP1 すべての配列をまとめて3次元配列にする
 
     #ファイルの読み込み
     region_codes = (load_np_arrays_from_npz('./npz_data/block_list.npz'))['block']
@@ -54,19 +61,29 @@ if __name__ == "__main__":
     #地域コードを一覧表示
     print(f'気象庁地域コード : {region_codes.tolist()}')
 
-    #UNIX時間と対応があるデータを作成
+    #3次元配列
     all_array = []
 
     #指数表記禁止
     np.set_printoptions(suppress=True)
 
-    #すべての配列をall_arrayに入れる
-    for array_key in tqdm(list(npz_file.keys()), desc="Processing...."):
+    #UNIX時間の重複を消して、3次元配列に変換
+    for array_key in tqdm(list(npz_file.keys()), desc="Processing ...", miniters=1000):
         array = npz_file[f'{array_key}'].tolist()
-        all_array.append(array)
+        unique_array = list(set(map(tuple, array)))
+        all_array.append(unique_array)
 
     #Numpy配列に変換し、保存。
     save_array = np.array(all_array)
-    save_np_array('temporary_data', {'tmp' : save_array})
+    save_np_array('dataset', {'tmp' : save_array})
+
+    #メッセージを表示
+    print(f'Finished : STEP1 !')
+    
+
+
+
+
+
 
 
