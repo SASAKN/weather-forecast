@@ -60,9 +60,13 @@ if __name__ == "__main__":
     #指数表記禁止
     np.set_printoptions(suppress=True)
 
+    #すべての配列をall_arrayに入れる
     for array_key in tqdm(list(npz_file.keys()), desc="Processing...."):
         array = npz_file[f'{array_key}'].tolist()
         all_array.append(array)
 
+    #Numpy配列に変換し、保存。
     save_array = np.array(all_array)
     save_np_array('temporary_data', {'tmp' : save_array})
+
+
