@@ -11,6 +11,15 @@ region_data = []
 
 #関数
 
+def save_np_array(file_name, arrays):
+    """
+    引数: file_name, **arrays
+    **arrays = キーワードと配列の対応させた辞書データ
+    Example ) **{'47110' : array_1} #必ず、地点番号と対応させること
+    """
+
+    np.savez_compressed(f'npz_data/{str(file_name)}', **arrays)
+
 def extract_filename(file_path):
     file_name = os.path.basename(file_path)
     
@@ -51,13 +60,9 @@ if __name__ == "__main__":
     #指数表記禁止
     np.set_printoptions(suppress=True)
 
-    for array_key in tqdm(list(npz_file.keys())):
+    for array_key in tqdm(list(npz_file.keys()), desc="Processing...."):
         array = npz_file[f'{array_key}'].tolist()
         all_array.append(array)
-    
-    print(all_array[0][0][0])
 
-
-
-
-
+    save_array = np.array(all_array)
+    save_np_array('temporary_data', {'tmp' : save_array})
