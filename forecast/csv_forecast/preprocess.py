@@ -233,6 +233,9 @@ if __name__ == "__main__":
         #CSVを処理
         data_csv = load_csv(target_csv)
 
+        #地域コード列を加える
+        data_csv['地域番号'] = str2float(extract_filename(target_csv))
+
         #風をベクトルに変換
         data_csv = wind2vector(data_csv)
 
