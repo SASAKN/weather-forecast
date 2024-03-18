@@ -83,7 +83,7 @@ if __name__ == "__main__":
     np.set_printoptions(suppress=True)
 
     #UNIX時間の重複を消して、3次元配列に変換
-    for array_key in tqdm(list(npz_file.keys())[150:], desc="Processing ...", miniters=1000):
+    for array_key in tqdm(list(npz_file.keys()), desc="Processing ...", miniters=1000):
         array = npz_file[f'{array_key}']
         unique_array = np.unique(array, axis=1)
         all_array.append(unique_array.tolist())
