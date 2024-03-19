@@ -44,30 +44,9 @@ def load_np_arrays_from_npz(npz_file):
 def find_target_array_from_file(arrays, keyword):
     return arrays[str(keyword)]
 
-def write_3d_array_to_csv(filename, data):
-    """
-    3次元配列をCSVファイルに書き込む関数。
-
-    Parameters:
-    - filename: 出力するCSVファイルのパス
-    - data: CSVに書き込むデータを含む3次元リスト
-
-    Returns:
-    - None
-    """
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        for matrix in data:
-            for row in matrix:
-                writer.writerow(row)
-            # 3次元配列の各行の終わりに改行を追加
-            csvfile.write("\n")
-
 if __name__ == "__main__":
     #メッセージを表示
     print(f'Weather DataSet Creator Alpha v0.1')
-
-    #STEP1 すべての配列をまとめて3次元配列にする
 
     #ファイルの読み込み
     region_codes = (load_np_arrays_from_npz('./npz_data/block_list.npz'))['block']
@@ -89,12 +68,11 @@ if __name__ == "__main__":
         all_array.append(unique_array.tolist())
 
     #Numpy配列に変換し、保存。
-    write_3d_array_to_csv('tmp.csv', all_array)
     save_array = np.array(all_array)
-    save_np_array('dataset', {'dataset_1' : save_array})
+    save_np_array('dataset', {'dataset' : save_array})
 
     #メッセージを表示
-    print(f'Finished : STEP1 !')
+    print(f'Created Weather Dataset')
     
 
 
