@@ -52,14 +52,14 @@ if __name__ == "__main__":
     region_codes = (load_np_arrays_from_npz('./npz_data/block_list.npz'))['block']
     npz_file = load_np_arrays_from_npz('./npz_data/weather_data.npz')
 
-    #地域コードを一覧表示
-    print(f'気象庁地域コード : {region_codes.tolist()}')
-
     #3次元配列
     all_array = []
 
     #指数表記禁止
     np.set_printoptions(suppress=True)
+
+    #メッセージを表示
+    print("すべての配列は3次元配列に変換されます。")
 
     #UNIX時間の重複を消して、3次元配列に変換
     for array_key in tqdm(list(npz_file.keys()), desc="Processing ...", miniters=1000):
@@ -71,8 +71,11 @@ if __name__ == "__main__":
     save_array = np.array(all_array)
     save_np_array('dataset', {'dataset' : save_array})
 
+    #Shapeを表示
+    print(f"保存された配列のShape : {save_array.shape}")
+
     #メッセージを表示
-    print(f'Created Weather Dataset')
+    print(f'All Done !')
     
 
 
