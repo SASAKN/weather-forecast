@@ -2,7 +2,6 @@
 import os
 import glob
 import numpy as np
-import json
 from tqdm import tqdm
 import csv
 

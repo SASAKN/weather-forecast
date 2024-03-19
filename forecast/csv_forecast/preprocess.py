@@ -3,6 +3,7 @@ import os
 import glob
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 #Sklearn
 from sklearn.preprocessing import MinMaxScaler
@@ -100,9 +101,6 @@ def load_csv(input_csv):
 
     #CSVの行を削除する
     data = data.drop(data.index[215833:])
-
-    #重複したものを削除
-    data = data.drop_duplicates()
 
     #日付をUnix時間にして、季節と地点緯度の追加
     added_zero_dates = [] #UNIX時間
@@ -223,7 +221,7 @@ if __name__ == "__main__":
     #辞書の初期化
     files_dict = {}
 
-    for target_csv in target_csv_files:
+    for target_csv in tqdm(target_csv_files[130:], desc="processing...", miniters=1000):
 
         print(f'[ PROCESSING ]現在進行中のファイル: {target_csv}')
 

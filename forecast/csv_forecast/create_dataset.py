@@ -64,15 +64,14 @@ if __name__ == "__main__":
     #UNIX時間の重複を消して、3次元配列に変換
     for array_key in tqdm(list(npz_file.keys()), desc="Processing ...", miniters=1000):
         array = npz_file[f'{array_key}']
-        unique_array = np.unique(array, axis=1)
-        all_array.append(unique_array.tolist())
+        all_array.append(array.tolist())
 
     #Numpy配列に変換し、保存。
     save_array = np.array(all_array)
     save_np_array('dataset', {'dataset' : save_array})
 
     #Shapeを表示
-    print(f"保存された配列のShape : {save_array.shape}")
+    print(save_array.shape)
 
     #メッセージを表示
     print(f'All Done !')
