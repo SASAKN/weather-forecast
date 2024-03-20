@@ -100,7 +100,7 @@ def load_csv(input_csv):
     data = pd.read_csv(input_csv, dtype={'column_name': str}, low_memory=False)
 
     #CSVの行を削除する
-    data = data.drop(data.index[215833:])
+    data = data.drop(data.index)
 
     #日付をUnix時間にして、季節と地点緯度の追加
     added_zero_dates = [] #UNIX時間
