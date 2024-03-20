@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVG Trimmer</title>
+<style>
+    #svgContainer {
+        position: relative;
+        border: 1px solid black;
+        cursor: crosshair;
+    }
+    #selectionLayer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+        pointer-events: none;
+        display: none;
+    }
+    #buttonsContainer {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: none;
+    }
+    #confirmButton, #cancelButton {
+        padding: 5px 10px;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<input type="file" id="fileInput" accept=".svg">
+<div id="buttonsContainer">
+    <button id="confirmButton">Confirm</button>
+    <button id="cancelButton">Cancel</button>
+</div>
+
+<div id="svgContainer"></div>
+
+<script>
+    let originalSVGContent = '';
+    let trimmedSVGContent = '';
+    let isDragging = false;
+    let startX, startY, endX, endY;
+    const svgContainer = document.getElementById('svgContainer');
+    const selectionLayer = document.createElement('div');
+    selectionLayer.id = 'selectionLayer';
+    svgContainer.appendChild(selectionLayer);
+    const buttonsContainer = document.getElementById('buttonsContainer');
+    const confirmButton = document.getElementById('confirmButton');
+    const cancelButton = document.getElementById('cancelButton');
+
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            originalSVGContent = e.target.result;
+            displaySVG(originalSVGContent);
+        };
+        reader.readAsText(file);
+    }
+
+    function displaySVG(svgContent) {
+        svgContainer.innerHTML = svgContent;
+        const svg = svgContainer.querySelector('svg');
+
+        svg.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            selectionLayer.style.display = 'block';
+            buttonsContainer.style.display = 'none';
+        });
+
+        svg.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            endX = e.clientX;
+            endY = e.clientY;
+            drawSelectionLayer();
+        });
+
+        svg.addEventListener('mouseup', () => {
+            isDragging = false;
+            selectionLayer.style.display = 'block';
+            buttonsContainer.style.display = 'block';
+            showTrimmedSVG();
+        });
+
+        confirmButton.addEventListener('click', () => {
+            selectionLayer.style.display = 'none';
+            buttonsContainer.style.display = 'none';
+            trimmedSVGContent = svgContainer.innerHTML;
+        });
+
+        cancelButton.addEventListener('click', () => {
+            svgContainer.innerHTML = originalSVGContent;
+            selectionLayer.style.display = 'none';
+            buttonsContainer.style.display = 'none';
+        });
+    }
+
+    function drawSelectionLayer() {
+        const width = Math.abs(endX - startX);
+        const height = Math.abs(endY - startY);
+        const x = Math.min(startX, endX);
+        const y = Math.min(startY, endY);
+        selectionLayer.style.width = width + 'px';
+        selectionLayer.style.height = height + 'px';
+        selectionLayer.style.top = y + 'px';
+        selectionLayer.style.left = x + 'px';
+    }
+
+    function showTrimmedSVG() {
+        const x = parseFloat(selectionLayer.style.left);
+        const y = parseFloat(selectionLayer.style.top);
+        const width = parseFloat(selectionLayer.style.width);
+        const height = parseFloat(selectionLayer.style.height);
+        const svgContent = svgContainer.innerHTML;
+        const trimmedSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${x} ${y} ${width} ${height}">${svgContent}</svg>`;
+        svgContainer.innerHTML = trimmedSVG;
+    }
+</script>
+
+</body>
+</html>
