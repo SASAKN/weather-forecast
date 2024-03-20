@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG Trimmer</title>
+  <style>
+    #svg-container {
+      width: 100%;
+      height: 400px;
+      border: 1px solid #ccc;
+      position: relative;
+    }
+    #selection-rectangle {
+      border: 2px dashed #000;
+      position: absolute;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <input type="file" id="file-input">
+  <div id="svg-container"></div>
+
+  <script>
+    let svgText = '';
+    let selection = null;
+    let startX, startY;
+
+    document.getElementById('file-input').addEventListener('change', handleFileSelect, false);
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        svgText = event.target.result;
+        displaySVG(svgText);
+      };
+
+      reader.readAsText(file);
+    }
+
+    function displaySVG(svgText) {
+      const container = document.getElementById('svg-container');
+      container.innerHTML = svgText;
+
+      container.addEventListener('mousedown', startSelection);
+      container.addEventListener('mousemove', updateSelection);
+      container.addEventListener('mouseup', endSelection);
+    }
+
+    function startSelection(event) {
+      startX = event.clientX;
+      startY = event.clientY;
+
+      const selectionRectangle = document.createElement('div');
+      selectionRectangle.id = 'selection-rectangle';
+      selectionRectangle.style.left = startX + 'px';
+      selectionRectangle.style.top = startY + 'px';
+      document.getElementById('svg-container').appendChild(selectionRectangle);
+
+      selection = {
+        element: selectionRectangle,
+        startX,
+        startY,
+        width: 0,
+        height: 0
+      };
+    }
+
+    function updateSelection(event) {
+      if (!selection) return;
+
+      const containerRect = document.getElementById('svg-container').getBoundingClientRect();
+      const width = event.clientX - startX;
+      const height = event.clientY - startY;
+
+      selection.element.style.width = Math.abs(width) + 'px';
+      selection.element.style.height = Math.abs(height) + 'px';
+      selection.element.style.left = (width > 0 ? startX : event.clientX) - containerRect.left + 'px';
+      selection.element.style.top = (height > 0 ? startY : event.clientY) - containerRect.top + 'px';
+
+      selection.width = Math.abs(width);
+      selection.height = Math.abs(height);
+    }
+
+    function endSelection(event) {
+      if (!selection) return;
+
+      const svgContainer = document.getElementById('svg-container');
+      const svgElement = svgContainer.querySelector('svg');
+      const viewBox = svgElement.getAttribute('viewBox').split(' ');
+
+      const scaleX = parseFloat(viewBox[2]) / svgElement.clientWidth;
+      const scaleY = parseFloat(viewBox[3]) / svgElement.clientHeight;
+
+      const selectedArea = {
+        x: (startX - svgContainer.offsetLeft) * scaleX,
+        y: (startY - svgContainer.offsetTop) * scaleY,
+        width: selection.width * scaleX,
+        height: selection.height * scaleY
+      };
+
+      svgElement.setAttribute('viewBox', `${selectedArea.x} ${selectedArea.y} ${selectedArea.width} ${selectedArea.height}`);
+
+      selection.element.remove();
+      selection = null;
+    }
+  </script>
+</body>
+</html>

@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     #UNIX時間の重複を消して、3次元配列に変換
     for array_key in tqdm(list(npz_file.keys()), desc="Processing ...", miniters=1000):
-        array = npz_file[f'{array_key}']
+        array = npz_file[f'{array_key}'][0:215809]
         all_array.append(array.tolist())
 
     #Numpy配列に変換し、保存。
