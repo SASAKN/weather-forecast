@@ -3,14 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SVG Viewer</title>
-  <link rel="stylesheet" href="style.css">
+  <title>SVG Trimming Tool</title>
+  <style>
+    #svgContainer {
+      border: 1px solid #000;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
-    <main>
-        <input type="file" id="file-input" accept=".svg" />
-        <div id="svg-container"></div>
-        <script src="main.js"></script>
-    </main>
+  <input type="file" id="fileInput">
+  <div id="svgContainer"></div>
+  <h2 id="viewBoxDisplay"></h2>
+  <script src="main.js"></script>
 </body>
 </html>
