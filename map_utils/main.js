@@ -1,3 +1,5 @@
+var current_view_box = null;
+
 // SVGを表示する関数
 function displaySVG(svgData) {
     const svgContainer = document.getElementById('svgContainer');
@@ -34,13 +36,15 @@ function displaySVG(svgData) {
     selectedArea.setAttribute("stroke", "red");
     selectedArea.setAttribute("stroke-width", "2");
     selectedArea.setAttribute("fill", "none");
+    selectedArea.id = "selected_area"
   
     const svgElement = document.querySelector('svg');
     svgElement.appendChild(selectedArea);
   
     // ViewBoxを更新して表示
     const viewBoxDisplay = document.getElementById('viewBoxDisplay');
-    viewBoxDisplay.textContent = `ViewBox: ${x} ${y} ${width} ${height}`;
+    viewBoxDisplay.textContent = `ViewBox: ${x} ${y -20} ${width} ${height}`;
+    current_view_box = `${x} ${y - 20} ${width} ${height}`
   }
   
   // マウスイベントリスナーを追加して選択範囲を更新
@@ -64,6 +68,8 @@ function displaySVG(svgData) {
     function endSelection() {
       document.removeEventListener('mousemove', updateSelection);
       document.removeEventListener('mouseup', endSelection);
+      document.querySelector('svg').setAttribute("viewBox", current_view_box)
+      document.querySelector('#selected_area').remove()
     }
   
     document.addEventListener('mousemove', updateSelection);
