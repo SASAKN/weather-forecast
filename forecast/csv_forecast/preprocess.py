@@ -99,9 +99,6 @@ def load_csv(input_csv):
     #CSVを読み込む
     data = pd.read_csv(input_csv, dtype={'column_name': str}, low_memory=False)
 
-    #CSVの行を削除する
-    data = data.drop(data.index)
-
     #日付をUnix時間にして、季節と地点緯度の追加
     added_zero_dates = [] #UNIX時間
     season_data = [] #季節
@@ -171,7 +168,7 @@ def delete_unnecessary_row(df, unnecessary_header_array):
 
 def fill_lack_value_df(df):
     result = pd.DataFrame()
-    df.fillna(method="ffill", inplace=True)
+    df.ffill(inplace=True)
     result = df
     return result
 
@@ -221,13 +218,7 @@ if __name__ == "__main__":
     #辞書の初期化
     files_dict = {}
 
-    for target_csv in tqdm(target_csv_files[130:], desc="processing...", miniters=1000):
-
-        print(f'[ PROCESSING ]現在進行中のファイル: {target_csv}')
-
-        #CSVのデータ型を見る
-        print(pd.read_csv(target_csv).dtypes)
-
+    for target_csv in tqdm(target_csv_files, desc="processing...", miniters=1000):
         #CSVを処理
         data_csv = load_csv(target_csv)
 
@@ -239,34 +230,19 @@ if __name__ == "__main__":
 
         #CSVを表示
         pd.options.display.max_columns = 20
-        print(data_csv.head())
 
         #必要のないデータをCSVから削除
         data_csv = delete_unnecessary_row(data_csv, ['年月日時', '雲量', '降雪'])
-
-        #CSVのデータ型を見る
-        print(data_csv.dtypes)
-
-        #欠陥値の合計を出力
-        print(count_lack_value(data_csv))
 
         #欠陥値を修正
         for i in [0, 1, 2]:
             data_csv = fill_lack_value_df(data_csv)
 
-        #欠陥値の合計を再度出力
-        print(count_lack_value(data_csv))
-
         #DataFrameをNumpy配列に変換
         data_np = df2np_array(data_csv)
-        print(data_np)
 
         #Numpy配列の欠陥値を修正
         data_np = fill_lack_value_np(data_np)
-        print(f'欠陥値: {np.sum(np.isnan(data_np), axis=0)}')
-
-        #Shapeを確認
-        print(data_np.shape)
 
         #辞書に追加
         files_dict[f'arr_{str(extract_filename(target_csv))}'] = data_np
