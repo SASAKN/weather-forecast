@@ -5,12 +5,16 @@ def fix_cloudiness(row_idx, col_idx, target_array):
     index = 0
 
     while True:
-        if (col_idx - index) >= 0 and (col_idx + index) < target_array.shape[1]: 
+        try:
             if index == 0 and target_array[row_idx, col_idx, 2] <= 10:
                 break
             elif index != 0 and target_array[row_idx, (col_idx - index), 2] <= 10 and target_array[row_idx, (col_idx + index), 2] <= 10:  # 改変が必要である場合
                 target_array[row_idx, col_idx, 2] = (target_array[row_idx, (col_idx - index), 2] + target_array[row_idx, (col_idx + index), 2]) / 2
                 break
+        except Exception as e:
+            print(e)
+            index += 1
+            pass
 
         index += 1
 
