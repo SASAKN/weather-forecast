@@ -6,13 +6,13 @@ def fix_cloudiness(row_idx, col_idx, target_array):
 
     while True:
         try:
-            if index == 0 and target_array[row_idx, col_idx, 2] <= 10:
-                break
-            elif index != 0 and target_array[row_idx, (col_idx - index), 2] <= 10 and target_array[row_idx, (col_idx + index), 2] <= 10:  # 改変が必要である場合
-                target_array[row_idx, col_idx, 2] = (target_array[row_idx, (col_idx - index), 2] + target_array[row_idx, (col_idx + index), 2]) / 2
-                break
-        except Exception as e:
-            print(e)
+            if (col_idx - index) >= 0:
+                if index == 0 and target_array[row_idx, col_idx, 2] <= 10:
+                    break
+                elif index != 0 and target_array[row_idx, (col_idx - index), 2] <= 10 and target_array[row_idx, (col_idx + index), 2] <= 10:  # 改変が必要である場合
+                    target_array[row_idx, col_idx, 2] = (target_array[row_idx, (col_idx - index), 2] + target_array[row_idx, (col_idx + index), 2]) / 2
+                    break
+        except Exception:
             index += 1
             pass
 
@@ -37,5 +37,6 @@ if __name__ == "__main__":
     #外れ値を修正
     for outliner_cloud_idx in outliner_cloud_index:
         row_idx, col_idx = outliner_cloud_idx[0], outliner_cloud_idx[1]
+        print(outliner_cloud_index.shape)
         fix_cloudiness(row_idx, col_idx, array)
         print(array[row_idx, col_idx, 2])
