@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 def fix_cloudiness_2(row_idx, col_idx, target_array, target_number):
     index = 0
@@ -24,7 +25,7 @@ def fix_cloudiness_2(row_idx, col_idx, target_array, target_number):
     return target_array
 
 def fix_cloudiness(outliner_keys, target_array):
-    for outliner_key in outliner_keys:
+    for outliner_key in tqdm(outliner_keys):
         #必要な情報の取得
         row_index, col_index = outliner_key[0], outliner_key[1]
         cloudiness = target_array[row_index, col_index, 2]
