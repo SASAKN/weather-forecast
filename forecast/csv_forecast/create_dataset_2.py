@@ -31,13 +31,16 @@ def fix_cloudiness(outliner_keys, target_array):
                     weather_code = target_array[row_index, col_index - index, 8]
                     if weather_code == 1:
                         cloudiness = 1
+                        break
                     elif weather_code == 2:
                         cloudiness = random.choice([2, 3, 4, 5, 6, 7, 8])
+                        break
                     elif weather_code == 3:
                         cloudiness = random.choice([9, 10])
+                        break
                     elif weather_code == 4 or weather_code == 12 or weather_code == 13 or weather_code == 14 or weather_code == 17 or weather_code == 24:
                         cloudiness = 10
-                    break
+                        break
                 elif index == 6 and (target_array[row_index, col_index - index, 2] > 10 and
                                      target_array[row_index, col_index + index, 2] > 10):
                     cloudiness = np.mean(target_array[row_index, :, 2])
@@ -66,9 +69,13 @@ if __name__ == "__main__":
     print(len(outliner_cloud_index))
 
     array = fix_cloudiness(outliner_cloud_index, array)
+    array = fix_cloudiness(outliner_cloud_index, array)
 
     #新しく計算し直す
     outliner_cloud_index = np.argwhere(array[:, :, 2] > 10)
+    for outliner_cloud_idx in outliner_cloud_index:
+        row_idx, col_idx = outliner_cloud_idx[0], outliner_cloud_idx[1]
+        print(array[row_idx, col_idx, 2])
     print(len(outliner_cloud_index))
     
     
