@@ -1,58 +1,54 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import random
 
-def fix_cloudiness_2(row_idx, col_idx, target_array, target_number):
-    index = 0
-
-    try:
-        while True:
-            if (col_idx - index) <= 0 and index <= target_number:
-                if index == 0 and target_array[row_idx, col_idx, 2] <= 10:
-                    break
-                elif index != 0 and target_array[row_idx, (col_idx - index), 2] <= 10 and target_array[row_idx, (col_idx + index), 2] <= 10:
-                    target_array[row_idx, col_idx, 2] = (target_array[row_idx, (col_idx - index), 2] + target_array[row_idx, (col_idx + index), 2]) / 2
-                    break
-                elif index > target_number:
-                    break
-            else:
-                break
-            index += 1
-    except IndexError:
-        pass
-
-    # 修正された配列を返す
-    return target_array
+def average(num1, num2):
+    return (num1 + num2) / 2
 
 def fix_cloudiness(outliner_keys, target_array):
-    for outliner_key in tqdm(outliner_keys):
-        #必要な情報の取得
+    for outliner_key in tqdm(outliner_keys[:100]):  # 全ての外れ値キーに対してループする
+        # 必要な情報の取得
         row_index, col_index = outliner_key[0], outliner_key[1]
         cloudiness = target_array[row_index, col_index, 2]
 
-        #外れ値を修正
+        # 外れ値を修正
         if cloudiness > 10:
-            start_row = max(0, row_index - 24)
-            end_row = min(row_index + 24 + 1, target_array.shape[0])
-            start_col = max(0, col_index - 24)
-            end_col = min(col_index + 24 + 1, target_array.shape[1])
+            for index in range(7):
+                if (target_array[row_index, col_index - index, 2] <= 10 and
+                    target_array[row_index, col_index + index, 2] <= 10):
+                    cloudiness = average(target_array[row_index, col_index - index, 2],
+                                         target_array[row_index, col_index + index, 2])
+                    break
+                elif target_array[row_index, col_index - index, 2] <= 10:
+                    cloudiness = target_array[row_index, col_index - index, 2]
+                    break
+                elif target_array[row_index, col_index + index, 2] <= 10:
+                    cloudiness = target_array[row_index, col_index + index, 2]
+                    break
+                elif (target_array[row_index, col_index - index, 2] > 10 and
+                      target_array[row_index, col_index - index, 8] <= 24):
+                    weather_code = target_array[row_index, col_index - index, 8]
+                    if weather_code == 1:
+                        cloudiness = 1
+                    elif weather_code == 2:
+                        cloudiness = random.choice([2, 3, 4, 5, 6, 7, 8])
+                    elif weather_code == 3:
+                        cloudiness = random.choice([9, 10])
+                    elif weather_code == 4 or weather_code == 12 or weather_code == 13 or weather_code == 14 or weather_code == 17 or weather_code == 24:
+                        cloudiness = 10
+                    break
+                elif index == 6 and (target_array[row_index, col_index - index, 2] > 10 and
+                                     target_array[row_index, col_index + index, 2] > 10):
+                    cloudiness = np.mean(target_array[row_index, :, 2])
+                elif index == 6:
+                    cloudiness = np.mean(target_array[row_index, :, 2])
+                else:
+                    pass
 
-            sum_value = 0
-            count = 0
+        target_array[row_index, col_index, 2] = cloudiness
 
-            for i in range(start_row, end_row):
-                for j in range(start_col, end_col):
-                    if (i, j) != (row_index, col_index):
-                        sum_value += target_array[i, j, 2]
-                        count += 1
-            
-            average_value = sum_value / count
-            target_array[row_index, col_index, 2] = average_value
-        
     return target_array
-
-
-
 
 
 
@@ -62,23 +58,17 @@ if __name__ == "__main__":
     
     # STEP 1 雲量の補完
 
-    #11以上は外れ値なので修正
+    #外れ値の補完
     print('雲量(Cloud)を修正します。')
+    
+    #外れ値を調べる
     outliner_cloud_index = np.argwhere(array[:, :, 2] > 10)
-    outliner_cloud_number = len(outliner_cloud_index)
-    print(outliner_cloud_number)
+    print(len(outliner_cloud_index))
 
-
-    # #外れ値を修正
-    # for outliner_cloud_idx in outliner_cloud_index:
-    #     row_idx, col_idx = outliner_cloud_idx[0], outliner_cloud_idx[1]
-    #     fix_cloudiness(row_idx, col_idx, array, outliner_cloud_number)
-    #     print(array[row_idx, col_idx, 2])
-    fix_cloudiness(outliner_cloud_index, array)
+    array = fix_cloudiness(outliner_cloud_index, array)
 
     #新しく計算し直す
     outliner_cloud_index = np.argwhere(array[:, :, 2] > 10)
-    outliner_cloud_number = len(outliner_cloud_index)
-    print(outliner_cloud_number)
+    print(len(outliner_cloud_index))
     
     
