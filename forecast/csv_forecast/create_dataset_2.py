@@ -35,6 +35,6 @@ if __name__ == "__main__":
     outliers_array = dataset[outliers[0], outliers[1], 2]
     inliers_array = dataset[inliers[0], inliers[1], 2]
 
+    # データを作成
     
-
 
