@@ -9,7 +9,7 @@ def build_model():
     model = Sequential()
 
     # 入力層
-    model.add(Input(shape=(64, 64, 3, 2)))
+    model.add(Input(shape=(2, 2, 2, 2)))
 
     # 畳み込み層1
     model.add(ConvLSTM2D(filters=64, activation='relu', kernel_size=(5, 5), strides=(1, 1), padding='same', return_sequences=True))
@@ -46,3 +46,5 @@ if __name__ == "__main__":
     #モデルを作成
     model = build_model()
     model.save('./model/model.keras')
+    x = np.random.randint(0, 10, size=(2, 2, 2, 2, 2))
+    print(model.predict(x))
