@@ -19,7 +19,7 @@ def build_logistic_model(x, y):
 
 # ランダムフォレスト
 def build_random_forest_model(x, y):
-    model = RandomForestRegressor(n_estimators=100, random_state=40)
+    model = RandomForestRegressor(random_state=0)
     model.fit(x, y)
     return model
 
@@ -36,5 +36,7 @@ if __name__ == "__main__":
     inliers_array = dataset[inliers[0], inliers[1], 2]
 
     # データを作成
+
+
     
 
