@@ -46,5 +46,3 @@ if __name__ == "__main__":
     #モデルを作成
     model = build_model()
     model.save('./model/model.keras')
-    x = np.random.randint(0, 10, size=(2, 2, 2, 2, 2))
-    print(model.predict(x))
