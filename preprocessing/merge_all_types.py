@@ -27,30 +27,31 @@ def from_path_to_datasets(path_array):
 if __name__ == "__main__":
 
     # データセットを取り出す
-    datasets = from_path_to_datasets(find_target_nc_file(1958))
+    for year in range(1958, 1960):
+        datasets = from_path_to_datasets(find_target_nc_file(year))
 
-    # 共通の座標変数を取り除く
-    common_vars = ['lon', 'lat', 'time']
+        # 共通の座標変数を取り除く
+        common_vars = ['lon', 'lat', 'time']
 
-    # 共通な変数を抜き出す
-    common_data = []
-    for dataset in datasets:
-        common_data.append(dataset[common_vars])
+        # 共通な変数を抜き出す
+        common_data = []
+        for dataset in datasets:
+            common_data.append(dataset[common_vars])
 
-    # 共通でない変数を抜き出す
-    specific_data = []
-    for dataset in datasets:
-        specific_data.append(dataset.drop_vars(common_vars))
+        # 共通でない変数を抜き出す
+        specific_data = []
+        for dataset in datasets:
+            specific_data.append(dataset.drop_vars(common_vars))
 
-    # 共通の変数を統合
-    merged_common = xr.merge(common_data)
+        # 共通の変数を統合
+        merged_common = xr.merge(common_data)
 
-    # 共通でない変数を統合
-    merged_spec = xr.merge(specific_data)
+        # 共通でない変数を統合
+        merged_spec = xr.merge(specific_data)
 
-    # 全てを統合
-    final_dataset = merged_common.merge(merged_spec)
+        # 全てを統合
+        final_dataset = merged_common.merge(merged_spec)
 
-    # 保存
-    final_dataset.to_netcdf('merged.nc')
+        # 保存
+        final_dataset.to_netcdf(f'merged_{year}.nc')
 
