@@ -3,7 +3,7 @@ import numpy as np
 import glob
 
 # ベースパス
-base_path = "../jra55/arch/jra55/isobaric_1.25d/surf/"
+base_path = "../jra55/arch/jra55/data/isobaric_1.25d/surf/"
 
 # 使うファイルのパス
 file_paths = [
@@ -12,8 +12,9 @@ file_paths = [
 ]
 
 # ファイルパスを検索する
-def find_target_nc_file():
-    return glob.glob(f'{str(base_path)}{str("**/*.nc")}')
+def find_target_nc_file(year):
+    result = glob.glob(f'{base_path}**/*_{year}.nc', recursive=True)
+    return result
 
 # パスからデータセットを開く
 def from_path_to_datasets(path_array):
@@ -25,8 +26,8 @@ def from_path_to_datasets(path_array):
 # メイン
 if __name__ == "__main__":
 
-# データセットを取り出す
-    datasets = from_path_to_datasets(file_paths)
+    # データセットを取り出す
+    datasets = from_path_to_datasets(find_target_nc_file(1958))
 
     # 共通の座標変数を取り除く
     common_vars = ['lon', 'lat', 'time']
