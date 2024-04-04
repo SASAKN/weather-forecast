@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 import glob
+from tqdm import tqdm
 
 # ベースパス
 base_path = "../jra55/arch/jra55/data/isobaric_1.25d/surf/"
@@ -27,7 +28,7 @@ def from_path_to_datasets(path_array):
 if __name__ == "__main__":
 
     # データセットを取り出す
-    for year in range(1958, 1960):
+    for year in tqdm(range(1960, 2019)):
         datasets = from_path_to_datasets(find_target_nc_file(year))
 
         # 共通の座標変数を取り除く
@@ -53,5 +54,5 @@ if __name__ == "__main__":
         final_dataset = merged_common.merge(merged_spec)
 
         # 保存
-        final_dataset.to_netcdf(f'merged_{year}.nc')
+        final_dataset.to_netcdf(f'jra55/merged_{year}.nc')
 
