@@ -4,12 +4,12 @@ import glob
 from tqdm import tqdm
 
 # ベースパス
-base_path = "./jra55"
+base_path = "./surf_jra55"
 
 # 使うファイルのパス
 file_paths = [
-    "./jra55/merged_1958.nc",
-    "./jra55/merged_1959.nc"
+    "./surf_jra55/merged_1958.nc",
+    "./surf_jra55/merged_1959.nc"
 ]
 
 # 目的のファイルを探す
