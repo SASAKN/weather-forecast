@@ -27,8 +27,9 @@ def from_path_to_datasets(path_array):
 # メイン
 if __name__ == "__main__":
 
-    # データセットを取り出す
     for year in tqdm(range(1960, 2019)):
+        
+        # データセットを取り出す
         datasets = from_path_to_datasets(find_target_nc_file(year))
 
         # 共通の座標変数を取り除く
