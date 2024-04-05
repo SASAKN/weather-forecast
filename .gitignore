@@ -10,3 +10,4 @@ sample_signate.py
 *.npz
 *.keras
 model/
+*.nc
