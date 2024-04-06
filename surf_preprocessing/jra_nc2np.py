@@ -27,7 +27,7 @@ def from_path_to_datasets(path_array):
 def nc2np(dataset, part):
     # part = トレーニングデータかテストデータか
     # dataset = データセットのデータ
-
+    
 
 
 if __name__ == "__main__":
