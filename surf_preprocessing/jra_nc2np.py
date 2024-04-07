@@ -6,7 +6,7 @@ import xarray as xr
 from tqdm import tqdm
 
 # 入力ベースパス
-nc_base_path = "./surf_jra55"
+nc_base_path = "../surf_jra55"
 
 # 出力ベースパス
 np_base_path = "./surf_data_np"
@@ -27,6 +27,9 @@ def from_path_to_datasets(path_array):
 def nc2np(dataset, part):
     # part = トレーニングデータかテストデータか
     # dataset = データセットのデータ
+    print(dataset.to_array().to_numpy())
+
+
     
 
 
@@ -45,6 +48,7 @@ if __name__ == "__main__":
         for dataset in datasets:
 
             # Numpy配列に変換する
+            nc2np(dataset, "train")
 
         
     
