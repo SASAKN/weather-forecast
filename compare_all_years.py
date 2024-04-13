@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
         for var_name in datasets[0].variables:
             if compare_shapes(datasets, var_name):
-                print(f'{var_name}のShapeは一致。')
+                print(f'{var_name}のShapeは一致。 : {datasets[0][var_name].shape}')
                 num_match = num_match + 1
             else:
                 print(f'{var_name}のShapeは不一致')
