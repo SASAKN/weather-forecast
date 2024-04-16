@@ -28,6 +28,8 @@ def nc2np(dataset, part):
     # part = トレーニングデータかテストデータか
     # dataset = データセットのデータ
 
+    dataset = xr.open_dataset(f'{nc_base_path}/merged_1959.nc')
+
     # ディレクトリを作成
     if part == "train":
         os.makedirs("./surf_data_np/train/", exist_ok=True)
@@ -37,14 +39,20 @@ def nc2np(dataset, part):
         print(f'[ ERROR ! ]Unknown part : {part}')
         return
     
-    
-    
+    # 属性ごとに配列に変換
+    array_dict = {}
+    for var in dataset.variables:
+        array = dataset[var].to_numpy()
+        array_dict.update({f'{str(var)}': array.shape})
+    print(array_dict)
 
 
     
 
+
     
 
+    
 
 if __name__ == "__main__":
 
@@ -53,7 +61,7 @@ if __name__ == "__main__":
 
 
     # 年ごとに気象変数と時間を処理する
-    for year in tqdm(range(1958, 2019), desc='Processing ...'):
+    for year in tqdm(range(1958, 1959), desc='Processing ...'):
         # データセットを読み込む
         datasets = from_path_to_datasets(find_target_nc_file(year))
 
