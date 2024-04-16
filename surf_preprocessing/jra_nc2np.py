@@ -42,8 +42,19 @@ def nc2np(dataset, part):
     # 属性ごとに配列に変換
     array_dict = {}
     for var in dataset.variables:
-        array = dataset[var].to_numpy()
-        array_dict.update({f'{str(var)}': array.shape})
+
+        # 共通データでなければ
+        if var != 'lon' and var != 'lat':
+
+            # Numpyに変換
+            array = dataset[var].to_numpy()
+
+            # 時間窓切り出し
+            
+
+            # 辞書に追加
+            array_dict.update({f'{str(var)}': array})
+
     print(array_dict)
 
 
