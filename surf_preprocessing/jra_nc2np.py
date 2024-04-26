@@ -50,12 +50,41 @@ def nc2np(dataset, part):
             array = dataset[var].to_numpy()
 
             # 時間窓切り出し
+            window_size = 4 # 時間ステップ
+            time_windows_list = []
+
+            # 時間窓を作成
+            if var != 'time':
+                for i in range(array.shape[0] - window_size + 1):
+                    
+                    # 時間窓配列を作成
+                    time_window = array[i:i+window_size]
+
+                    # 時間窓のリストを作成
+                    time_windows_list.append(time_window)
             
+            print(np.array(time_windows_list).shape)
+
+
+
+
+
+
+
+
+
+
+
+            if var != 'time':
+                print(array[0][0][0])
+                print(array[0][0][1])
+                print(array[0][0][2])
+                print(array[0][0][3])
 
             # 辞書に追加
             array_dict.update({f'{str(var)}': array})
 
-    print(array_dict)
+    # print(array_dict)
 
 
     
