@@ -24,11 +24,9 @@ def from_path_to_datasets(path_array):
     return datasets
 
 # NetCDF4をNumpyに変換
-def nc2np(dataset, part):
+def nc2np(dataset, part, year):
     # part = トレーニングデータかテストデータか
     # dataset = データセットのデータ
-
-    dataset = xr.open_dataset(f'{nc_base_path}/merged_1959.nc')
 
     # ディレクトリを作成
     if part == "train":
@@ -63,33 +61,14 @@ def nc2np(dataset, part):
                     # 時間窓のリストを作成
                     time_windows_list.append(time_window)
             
-            print(np.array(time_windows_list).shape)
-
-
-
-
-
-
-
-
-
-
-
-            if var != 'time':
-                print(array[0][0][0])
-                print(array[0][0][1])
-                print(array[0][0][2])
-                print(array[0][0][3])
+            # Numpyに変換
+            time_windows_array = np.array(time_windows_list)
 
             # 辞書に追加
-            array_dict.update({f'{str(var)}': array})
+            array_dict.update({f'{str(var)}': time_windows_array})
 
-    # print(array_dict)
-
-
-    
-
-
+    # Numpy配列を保存
+    np.savez_compressed(f"./surf_data_np/{part}/{year}.npz", **array_dict)
     
 
     
@@ -108,7 +87,7 @@ if __name__ == "__main__":
         for dataset in datasets:
 
             # Numpy配列に変換する
-            nc2np(dataset, "train")
+            nc2np(dataset, "train", year)
 
         
     
